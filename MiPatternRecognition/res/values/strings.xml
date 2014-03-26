@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MiPatternRecognition</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="textModoNormal">Modo Normal</string>
+    <string name="textCapturaObjeto">Captura Objeto</string>
+    <string name="textEncuentraObjeto">Encuentra Objeto</string>
+    <string name="title_activity_reconocimiento">Reconocimiento</string>
+    <string name="comenzarRec">Comenzar reconocimiento</string>
+    <string name="hintNombreEdit">Nombre</string>
+
+</resources>
