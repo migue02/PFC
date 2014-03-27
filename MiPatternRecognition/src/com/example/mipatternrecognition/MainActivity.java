@@ -86,7 +86,6 @@ public class MainActivity extends Activity {
 
 		comenzarRec = (Button) findViewById(R.id.btnComenzar);
 		btn1 = (Button) findViewById(R.id.button1);
-		selectedImage = (ImageView) findViewById(R.id.image1);
 		
 
 		/*if (lista_objectos.size() > 0) {
