@@ -118,6 +118,7 @@ public class MainActivity extends Activity {
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				datasource.deleteTableObjeto();
+				
 			}
 		});
 

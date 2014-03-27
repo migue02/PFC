@@ -52,6 +52,7 @@ public class ObjetoDataSource {
 
 		allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null, null,
 				null, null);// devuelve el objeto que se acaba de insertar
+		
 
 		cursor.moveToFirst();
 		Objeto newObjeto = cursorToObjeto(cursor);
