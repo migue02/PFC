@@ -117,13 +117,7 @@ public class MainActivity extends Activity {
 		/* Listener Captura Objeto Button */
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Objeto obj= datasource.getObjeto(1);
-				toast(obj);
-				Mat m = Utils.matFromJson(obj.getKeypoints());
-				Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(),
-						Bitmap.Config.ARGB_8888);
-				org.opencv.android.Utils.matToBitmap(m, bm);
-				selectedImage.setImageBitmap(bm);
+				datasource.deleteTableObjeto();
 			}
 		});
 

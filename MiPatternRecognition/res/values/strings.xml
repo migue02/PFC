@@ -10,5 +10,6 @@
     <string name="title_activity_reconocimiento">Reconocimiento</string>
     <string name="comenzarRec">Comenzar reconocimiento</string>
     <string name="hintNombreEdit">Nombre</string>
+    <string name="btnBorrarDB">Borrrar DB</string>
 
 </resources>

@@ -65,6 +65,11 @@ public class ObjetoDataSource {
 		database.delete(MySQLiteHelper.TABLE_OBJETO, MySQLiteHelper.COLUMN_ID
 				+ " = " + id, null);
 	}
+	
+	public void deleteTableObjeto() {
+		Log.w("Deleting...", "Borrando tabla objetos");
+		database.execSQL("DROP TABLE IF EXISTS " + MySQLiteHelper.TABLE_OBJETO);
+	}
 
 	public List<Objeto> getAllObjetos() {
 		List<Objeto> objetos = new ArrayList<Objeto>();
