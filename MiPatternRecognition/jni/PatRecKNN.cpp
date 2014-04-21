@@ -21,18 +21,17 @@ extern "C" {
 const int SURF_DETECTION = 0; //SURF (nonfree module)
 const int SIFT_DETECTION = 1; //SIFT (nonfree module)
 
-vector<KeyPoint> keyPoints_1, keyPoints_2;
-
 long objeto_long;
 
-JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindFeatures(
-		JNIEnv*, jobject, jlong addrGray, jlong addrRgba, jlong addrKeyPoints, jlong addrDescriptores) {
+vector < KeyPoint > keyPoints_1, keyPoints_2;
+
+JNIEXPORT jobjectArray JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindFeatures(
+		JNIEnv* env, jobject, jlong addrGray, jlong addrRgba,
+		jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
 	Mat& mRgb = *(Mat*) addrRgba;
-	Mat& keyPoints = *(Mat*) addrKeyPoints;
 	Mat& descriptores = *(Mat*) addrDescriptores;
-
-	//vector<KeyPoint> keyPoints_1;
+	//vector < KeyPoint > keyPoints_1;
 
 	objeto_long = addrGray;
 	int minHessian = 500;
@@ -45,37 +44,49 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 	detector_Surf.detect(mGr, keyPoints_1);
 	extractor_Surf.compute(mGr, keyPoints_1, descriptores);
 
-	putText(mRgb, "Encontrado", Point2f(100, 100), FONT_HERSHEY_PLAIN,
-						2, Scalar(0, 0, 255, 150), 2);
-
-	std::vector<cv::Point2f> points;
-	std::vector<cv::KeyPoint>::iterator it;
-
-	for( it= keyPoints_1.begin(); it!= keyPoints_1.end();it++)
-	{
-	    points.push_back(it->pt);
-	}
-
-	Mat pointmatrix(points);
-
-	keyPoints = pointmatrix;
-
 	for (unsigned int i = 0; i < keyPoints_1.size(); i++) {
 		const KeyPoint& kp = keyPoints_1[i];
 		circle(mRgb, Point(kp.pt.x, kp.pt.y), 10, Scalar(255, 0, 0, 255));
 	}
 
-	return true;
+	//char a[80],ptn[10];
+	//strcpy(a, "Descriptores rows ");
+	//sprintf(ptn, "%i", descriptores.rows);
+	//strcat(a, ptn);
+	//__android_log_write(ANDROID_LOG_ERROR, "Tag", a);
+
+	// Get a class reference for java.lang.Integer
+	jclass cls = env->FindClass("org/opencv/features2d/KeyPoint");
+	// Get the Method ID of the constructor which takes an int
+	jmethodID midInit = env->GetMethodID(cls, "<init>", "(FFFFFII)V");
+	// Call back constructor to allocate a new instance
+	jobjectArray newKeyPointArr = env->NewObjectArray(keyPoints_1.size(), cls,
+	NULL);
+
+	for (unsigned int i = 0; i < keyPoints_1.size(); i++) {
+		jobject newKeyPoint = env->NewObject(cls, midInit, keyPoints_1[i].pt.x,
+				keyPoints_1[i].pt.y, keyPoints_1[i].size, keyPoints_1[i].angle,
+				keyPoints_1[i].response, keyPoints_1[i].octave,
+				keyPoints_1[i].class_id);
+		env->SetObjectArrayElement(newKeyPointArr, i, newKeyPoint);
+	}
+
+	putText(mRgb, "Encontrado", Point2f(100, 100), FONT_HERSHEY_PLAIN, 2,
+			Scalar(0, 0, 255, 150), 2);
+
+	descriptores.release();
+	return newKeyPointArr;
 }
 
 JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindObject(
-		JNIEnv*, jobject, jlong addrGray, jlong addrRgba, jlong addrKeyPoints, jlong addrDescriptores) {
+		JNIEnv* env, jobject, jlong addrGray, jlong addrRgba,
+		jobjectArray arrayKeyPoints, jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
 	Mat& mRgb = *(Mat*) addrRgba;
 	Mat& objeto = *(Mat*) objeto_long;
-	Mat& keyPoints = *(Mat*) addrKeyPoints;
-	Mat& descriptores = *(Mat*) addrDescriptores;
+	Mat& descriptors_1 = *(Mat*) addrDescriptores;
 	Mat descriptors_2;
+
 	int minHessian = 500;
 	SurfFeatureDetector detector_Surf(minHessian);
 
@@ -84,7 +95,73 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 	detector_Surf.detect(mGr, keyPoints_2);
 	extractor_Surf.compute(mGr, keyPoints_2, descriptors_2);
 
-	if (descriptors_2.rows == 0 || descriptores.rows == 0
+	char au[80], ptn[40];
+	jint length = env->GetArrayLength(arrayKeyPoints);
+	strcpy(au, "GetArrayLenght = ");
+	sprintf(ptn, "%i", length);
+	strcat(au, ptn);
+	__android_log_write(ANDROID_LOG_ERROR, "Tag", au);
+/*
+	// Get a class reference for java.lang.Integer
+	jclass objClassKeyPoint = env->FindClass("org/opencv/features2d/KeyPoint");
+	assert(objClassKeyPoint != NULL);
+
+	// Get the Method ID of the constructor
+	jmethodID midInit = env->GetMethodID(objClassKeyPoint, "<init>",
+			"(FFFFFII)V");
+	assert(midInit != NULL);
+
+	// Get the Fields of the KeyPoint
+	jfieldID myFieldClass = env->GetFieldID(objClassKeyPoint, "class_id", "I");
+	assert(myFieldClass != NULL);
+	jfieldID myFieldSize = env->GetFieldID(objClassKeyPoint, "size", "F");
+	assert(myFieldSize != NULL);
+	jfieldID myFieldAngle = env->GetFieldID(objClassKeyPoint, "angle", "F");
+	assert(myFieldAngle != NULL);
+	jfieldID myFieldOctave = env->GetFieldID(objClassKeyPoint, "octave", "I");
+	assert(myFieldOctave != NULL);
+	jfieldID myFieldResponse = env->GetFieldID(objClassKeyPoint, "response",
+			"F");
+	assert(myFieldResponse != NULL);
+
+	// Get the Fields of the values of the Point (inside the KeyPoints)
+	jfieldID myFieldPoint = env->GetFieldID(objClassKeyPoint, "pt",
+			"Lorg/opencv/core/Point;");
+	assert(myFieldPoint != NULL);
+	jclass objClassPoint = env->FindClass("org/opencv/core/Point");
+	assert(objClassPoint != NULL);
+
+	// Create KeyPoint Vector
+	KeyPoint aux;
+	for (unsigned int i = 0; i < length; i++) {
+		jobject newKeyPoint = env->GetObjectArrayElement(arrayKeyPoints, i);
+		assert(newKeyPoint != NULL);
+		aux.angle = env->GetFloatField(newKeyPoint, myFieldAngle);
+		aux.response = env->GetFloatField(newKeyPoint, myFieldResponse);
+		aux.size = env->GetFloatField(newKeyPoint, myFieldSize);
+		aux.class_id = env->GetIntField(newKeyPoint, myFieldClass);
+		aux.octave = env->GetIntField(newKeyPoint, myFieldOctave);
+
+		jobject point = env->GetObjectField(newKeyPoint, myFieldPoint);
+		assert(point != NULL);
+		jfieldID myFieldPointX = env->GetFieldID(objClassPoint, "x", "D");
+		assert(myFieldPointX != NULL);
+		jfieldID myFieldPointY = env->GetFieldID(objClassPoint, "y", "D");
+		assert(myFieldPointY != NULL);
+		aux.pt.x = env->GetDoubleField(point, myFieldPointX);
+		aux.pt.y = env->GetDoubleField(point, myFieldPointY);
+		keyPoints_1.push_back(aux);
+	}
+*/
+	strcpy(au, "KeyPoint[0] = ");
+	//sprintf(ptn, " %i", keyPoints_1.size());
+	sprintf(ptn, " %f ", keyPoints_1[0].pt.x);
+	strcat(au, ptn);
+	sprintf(ptn, " %f ", keyPoints_1[0].pt.y);
+	strcat(au, ptn);
+	__android_log_write(ANDROID_LOG_ERROR, "Tag", au);
+
+	if (descriptors_2.rows == 0 || descriptors_1.rows == 0
 			|| keyPoints_2.size() == 0 || keyPoints_1.size() == 0) {
 		return false;
 	}
@@ -92,7 +169,7 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 	FlannBasedMatcher matcher;
 	vector<vector<DMatch> > matches;
 	try {
-		matcher.knnMatch(descriptores, descriptors_2, matches, 2);
+		matcher.knnMatch(descriptors_1, descriptors_2, matches, 2);
 
 		//-- Draw only "good" matches (i.e. whose distance is less than 2*min_dist,
 		//-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
@@ -100,7 +177,7 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 		//-- PS.- radiusMatch can also be used here.
 		vector<DMatch> good_matches;
 
-		for (int i = 0; i < min(descriptores.rows - 1, (int) matches.size());
+		for (int i = 0; i < min(descriptors_1.rows - 1, (int) matches.size());
 				i++) //THIS LOOP IS SENSITIVE TO SEGFAULTS
 				{
 			if ((matches[i][0].distance < 0.6 * (matches[i][1].distance))
@@ -152,6 +229,11 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 		}
 	} catch (Exception e) {
 	}
+	descriptors_2.release();
+	descriptors_1.release();
+	//keyPoints_1.clear();
+	//keyPoints_2.clear();
+	matches.clear();
 	return false;
 }
 

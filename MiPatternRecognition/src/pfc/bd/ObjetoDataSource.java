@@ -24,6 +24,7 @@ public class ObjetoDataSource {
 			MySQLiteHelper.COLUMN_NOMBRE, MySQLiteHelper.COLUMN_KEYPOINTS,
 			MySQLiteHelper.COLUMN_DESPCRIPTORES };
 
+
 	public ObjetoDataSource(Context context) {
 		Log.w("Creando...", "Creando bd");
 		dbHelper = new MySQLiteHelper(context);
@@ -70,6 +71,7 @@ public class ObjetoDataSource {
 	public void deleteTableObjeto() {
 		Log.w("Deleting...", "Borrando tabla objetos");
 		database.execSQL("DROP TABLE IF EXISTS " + MySQLiteHelper.TABLE_OBJETO);
+		database.execSQL(dbHelper.getSqlCreateObjeto());
 	}
 
 	public List<Objeto> getAllObjetos() {
@@ -129,85 +131,5 @@ public class ObjetoDataSource {
 		objeto.setDescriptores(cursor.getString(3));
 		return objeto;
 	}
-
-	// /**
-	// * It inserts in the PI table a new row with the values passed in the
-	// * parameters
-	// *
-	// * @param keypoints
-	// * The data of the object (keypoints)
-	// *
-	// * @param descriptors
-	// * The data of the object (descriptors)
-	// */
-	// public void insertObjeto(String nombre, String keypoints, String
-	// descriptors) {
-	// SQLiteDatabase db = getWritableDatabase();
-	// if (db != null) {
-	// String aux = "INSERT INTO " + TableObjeto
-	// + " (nombre, keypoints, descriptors) " + " VALUES( "
-	// + nombre + "," + keypoints + "," + descriptors + " ) ";
-	// db.execSQL(aux);
-	// db.close();
-	// }
-	// }
-	//
-	// /**
-	// * It will read in the PI table and return a cursor with the query of a
-	// * select of the values "u" and "y" of every rows in the PI table
-	// *
-	// * @return It return a cursor with the query of a select of the values "u"
-	// * and "y" of every rows in the PI table
-	// */
-	// public Cursor readObjeto(int id) {
-	// SQLiteDatabase db = getReadableDatabase();
-	//
-	// return db.rawQuery("SELECT nombre, keypoints, descriptors FROM "
-	// + TableObjeto + "where id = " + id, null);
-	// }
-	//
-	// /**
-	// * It will read in the PI table and return a cursor with the query of a
-	// * select of the values "u" and "y" of every rows in the PI table
-	// *
-	// * @return It return a cursor with the query of a select of the values "u"
-	// * and "y" of every rows in the PI table
-	// */
-	// public Cursor readObjetos() {
-	// SQLiteDatabase db = getReadableDatabase();
-	//
-	// return db.rawQuery("SELECT * FROM " + TableObjeto, null);
-	// }
-	//
-	// /**
-	// * It will read in the PI table and return a cursor with the query of a
-	// * select of the values "u" and "y" of every rows in the PI table
-	// *
-	// * @return It return a cursor with the query of a select of the values "u"
-	// * and "y" of every rows in the PI table
-	// */
-	// public int readCountObjetos() {
-	// SQLiteDatabase db = getReadableDatabase();
-	//
-	// return db.rawQuery("SELECT * FROM " + TableObjeto, null).getCount();
-	// }
-	//
-	// /**
-	// * It will drop the PI table if exists and will create a new one
-	// *
-	// */
-	// public void dropObjeto() {
-	//
-	// SQLiteDatabase db = getReadableDatabase();
-	// db.execSQL("DROP TABLE IF EXISTS " + TableObjeto);
-	// db.execSQL(sqlCreateObjeto);
-	// db.close();
-	// }
-	//
-	// @Override
-	// public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 }

@@ -1,5 +1,6 @@
 package com.example.mipatternrecognition;
 
+import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -26,12 +27,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.Random;
+
+import android.app.ListActivity;
+import android.os.Bundle;
+import android.view.View;
 
 public class MainActivity extends Activity {
 
@@ -42,7 +50,8 @@ public class MainActivity extends Activity {
 	// Buttons
 	private Button comenzarRec;
 	private Button btn1;
-	
+	private ListView lv;
+
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
@@ -67,39 +76,40 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
-		
 
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		setContentView(R.layout.activity_main);
-		
+
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
 
-		datasource = new ObjetoDataSource(this);		
+		datasource = new ObjetoDataSource(this);
 		datasource.open();
 		
+		List<Objeto> lista_objectos = datasource.getAllObjetos();
+
+		ArrayAdapter<Objeto> adapter = new ArrayAdapter<Objeto>(this,
+				android.R.layout.simple_list_item_1, lista_objectos);
 		
-		
-		//List<Objeto> lista_objectos = datasource.getAllObjetos();
+		lv = (ListView)findViewById(R.id.listaObjetos);
+		lv.setAdapter(adapter);
 
 		comenzarRec = (Button) findViewById(R.id.btnComenzar);
 		btn1 = (Button) findViewById(R.id.button1);
-		
 
-		/*if (lista_objectos.size() > 0) {
-			// make a mat and draw something
-			Mat m = Utils.matFromJson(lista_objectos.get(0).getKeypoints());
-
-			// convert to bitmap:
-			Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(),
-					Bitmap.Config.ARGB_8888);
-			org.opencv.android.Utils.matToBitmap(m, bm);
-
-			// find the imageview and draw it!
-			selectedImage.setImageBitmap(bm);
-		}*/
+		/*
+		 * if (lista_objectos.size() > 0) { // make a mat and draw something Mat
+		 * m = Utils.matFromJson(lista_objectos.get(0).getKeypoints());
+		 * 
+		 * // convert to bitmap: Bitmap bm = Bitmap.createBitmap(m.cols(),
+		 * m.rows(), Bitmap.Config.ARGB_8888);
+		 * org.opencv.android.Utils.matToBitmap(m, bm);
+		 * 
+		 * // find the imageview and draw it! selectedImage.setImageBitmap(bm);
+		 * }
+		 */
 
 		/* Listener Captura Objeto Button */
 		comenzarRec.setOnClickListener(new View.OnClickListener() {
@@ -112,12 +122,12 @@ public class MainActivity extends Activity {
 
 			}
 		});
-		
+
 		/* Listener Captura Objeto Button */
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				datasource.deleteTableObjeto();
-				
+
 			}
 		});
 
@@ -126,19 +136,19 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		datasource.open();
-		super.onResume();		
+		super.onResume();
 	}
 
-	public void toast(Objeto obj){
-		Toast.makeText(this, "Id ="+obj.getId() , Toast.LENGTH_SHORT).show();
+	public void toast(Objeto obj) {
+		Toast.makeText(this, "Id =" + obj.getId(), Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		datasource.close();
 		super.onPause();
 	}
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {

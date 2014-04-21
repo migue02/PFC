@@ -41,6 +41,6 @@ public class Objeto {
 	// Will be used by the ArrayAdapter in the ListView
 	@Override
 	public String toString() {
-		return nombre + keypoints + descriptores;
+		return id + ".- " + nombre;
 	}
 }

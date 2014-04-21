@@ -7,6 +7,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
+import org.opencv.features2d.KeyPoint;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 
@@ -24,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -50,11 +52,13 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 	private boolean encontrado = false;
 	private int DETECTION_TYPE = SURF_DETECTION; // CHOOOSEN KIND OF DETECTION
 	private ObjetoDataSource datasource;
-	private MatOfKeyPoint keypoints = new MatOfKeyPoint();
-	private Mat descriptores = new Mat();
+	private MatOfKeyPoint keypoints_obj = new MatOfKeyPoint();
+	private Mat descriptores_obj = new Mat();
+	private KeyPoint[] listaKP_obj;
 	// private Mat aux=new Mat();
 	private EditText editNombre;
 	private long id;
+	private CheckBox CBKeyPoints;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -97,6 +101,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		buttonEncuentraObjeto = (Button) findViewById(R.id.buttonEncuentraObjeto);
 		buttonVistaNormal = (Button) findViewById(R.id.buttonVistaNormal);
 		editNombre = (EditText) findViewById(R.id.editNombre);
+		CBKeyPoints = (CheckBox) findViewById(R.id.checkBoxKeyPoints);
 
 		mOpenCvCameraView.setCvCameraViewListener(this);
 
@@ -176,23 +181,35 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		if (patronAdquirido) {
-			
+
 			mRgba = inputFrame.rgba();
 			mGray = inputFrame.gray();
-			FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(),
-					keypoints.getNativeObjAddr(),
-					descriptores.getNativeObjAddr());
 			patronAdquirido = false;
-			Log.w("Estrella", "Tipo = " + keypoints.type());
-			String obString = Utils.matToJson(descriptores);
-			//String obString2 = Utils.keypointsToJson(keypoints);
-			Objeto obj = datasource.createObjeto(editNombre.getText()
-					.toString(), "", obString);
-			id = obj.getId();
-			Log.w("Estrella", "Id= " + id + " col= " + keypoints.cols()
-					+ " rows= " + keypoints.rows());
-			descriptores.release();
+			String keyString, desString;
 			
+			if (CBKeyPoints.isChecked()){
+				listaKP_obj = FindFeatures(mGray.getNativeObjAddr(),
+						mRgba.getNativeObjAddr(), descriptores_obj.getNativeObjAddr());
+				
+				keypoints_obj = new MatOfKeyPoint(listaKP_obj);
+				keyString = Utils.keypointsToJson(keypoints_obj);
+				desString = Utils.matToJson(descriptores_obj);
+				Objeto obj = datasource.createObjeto(editNombre.getText()
+						.toString(), keyString, desString);
+				id = obj.getId();
+				Log.w("Tag", " Size "+listaKP_obj.length+ "\n" + keyString);
+				descriptores_obj.release();
+				keypoints_obj.release();
+			}else{			
+				FindFeatures2(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(),
+						descriptores_obj.getNativeObjAddr());
+				desString = Utils.matToJson(descriptores_obj);
+				Objeto obj = datasource.createObjeto(editNombre.getText()
+						.toString(), "", desString);
+				id = obj.getId();
+				descriptores_obj.release();
+			}
+
 		} else if (buscandoObjeto) {
 			final int viewMode = mViewMode;
 			switch (viewMode) {
@@ -201,15 +218,34 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 				mRgba = inputFrame.rgba();
 				mGray = inputFrame.gray();
 				Objeto obj2 = datasource.getObjeto(id);
-				Mat aux2 = Utils.matFromJson(obj2.getDescriptores());
-				
-				Log.w("Estrella",
-						"Id= " + obj2.getId() + " col= " + aux2.cols()
-								+ " rows= " + aux2.rows());
-				
-				encontrado = FindObject(mGray.getNativeObjAddr(),
-						mRgba.getNativeObjAddr(), keypoints.getNativeObjAddr(),
-						aux2.getNativeObjAddr());
+				if (CBKeyPoints.isChecked()){
+					
+					//for (int i=1;i<4;i++){						
+						//obj2 = datasource.getObjeto(i);
+						descriptores_obj = Utils.matFromJson(obj2.getDescriptores());
+						keypoints_obj = Utils.keypointsFromJson(obj2
+								.getKeypoints());
+						
+						encontrado = FindObject(mGray.getNativeObjAddr(),
+								mRgba.getNativeObjAddr(), keypoints_obj.toArray(),
+								descriptores_obj.getNativeObjAddr());
+						
+						Log.w("Tag",obj2.getKeypoints());
+						
+						descriptores_obj.release();
+						keypoints_obj.release();
+					//}
+					
+				}else{
+					descriptores_obj = Utils.matFromJson(obj2.getDescriptores());
+	
+					Log.w("Estrella",
+							"Id= " + obj2.getId() + " col= " + descriptores_obj.cols()
+									+ " rows= " + descriptores_obj.rows());
+	
+					encontrado = FindObject2(mGray.getNativeObjAddr(),
+							mRgba.getNativeObjAddr(), descriptores_obj.getNativeObjAddr());
+				}
 				break;
 			}
 		} else
@@ -224,7 +260,8 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		// TODO Auto-generated method stub
 		mGray.release();
 		mRgba.release();
-		descriptores.release();
+		descriptores_obj.release();
+		keypoints_obj.release();
 	}
 
 	@Override
@@ -242,9 +279,16 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		return super.onKeyDown(keyCode, event);
 	}
 
-	public native boolean FindFeatures(long matAddrGr, long matAddrRgba,
-			long matAddrKeypoints, long matAddrDescriptores);
+	public native KeyPoint[] FindFeatures(long matAddrGr, long matAddrRgba,
+			long matAddrDescriptores);
 
 	public native boolean FindObject(long matAddrGr, long matAddrRgba,
-			long matAddrKeypoints, long matAddrDescriptores);
+			KeyPoint[] matAddrKeypoints, long matAddrDescriptores);
+	
+	public native boolean FindFeatures2(long matAddrGr, long matAddrRgba,
+			long matAddrDescriptores);
+
+	public native boolean FindObject2(long matAddrGr, long matAddrRgba,
+			long matAddrDescriptores);
+	
 }

@@ -1,5 +1,7 @@
 package pfc.bd;
 
+import java.sql.SQLClientInfoException;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -23,6 +25,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			+ COLUMN_ID + " integer primary key autoincrement, "
 			+ COLUMN_NOMBRE + " varchar, " + COLUMN_KEYPOINTS + " text, "
 			+ COLUMN_DESPCRIPTORES + " text)";
+
+
+	public String getSqlCreateObjeto() {
+		return sqlCreateObjeto;
+	}
 
 	private String sqlDropObjeto = "DROP TABLE IF EXISTS" +TABLE_OBJETO;
 	/**
@@ -49,6 +56,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
+		Log.w("DATABASE", "Creando tabla objeto");
 		db.execSQL(sqlCreateObjeto);
 	}
 	
@@ -61,6 +69,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_OBJETO);
 	    onCreate(db);
 	  }
+
 
 //	/**
 //	 * It inserts in the PI table a new row with the values passed in the

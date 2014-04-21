@@ -16,6 +16,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/btnBorrarDB" />
+    
+    <ListView
+        android:id="@+id/listaObjetos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btnBorrarDB" />
 
 
 </LinearLayout>
