@@ -1,5 +1,6 @@
 package com.example.mipatternrecognition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -11,9 +12,15 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
+import pfc.bd.AlumnoDataSource;
+import pfc.bd.EjercicioDataSource;
 import pfc.bd.MySQLiteHelper;
-import pfc.bd.Objeto;
 import pfc.bd.ObjetoDataSource;
+import pfc.bd.SerieEjerciciosDataSource;
+import pfc.obj.Alumno;
+import pfc.obj.Ejercicio;
+import pfc.obj.Objeto;
+import pfc.obj.SerieEjercicios;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -38,13 +45,14 @@ import android.widget.Toast;
 import java.util.Random;
 
 import android.app.ListActivity;
-import android.os.Bundle;
-import android.view.View;
 
 public class MainActivity extends Activity {
 
 	private static final String TAG = "Reconocimiento::MainActivity";
 	private ObjetoDataSource datasource;
+	private AlumnoDataSource datasourceAlumno;
+	private EjercicioDataSource datasourceEjercicio;
+	private SerieEjerciciosDataSource datasourceSerieEjercicios;
 	private ImageView selectedImage;
 
 	// Buttons
@@ -88,16 +96,61 @@ public class MainActivity extends Activity {
 		datasource = new ObjetoDataSource(this);
 		datasource.open();
 		
+		
 		List<Objeto> lista_objectos = datasource.getAllObjetos();
 
-		ArrayAdapter<Objeto> adapter = new ArrayAdapter<Objeto>(this,
+		ArrayAdapter<Objeto> adapterObjetos = new ArrayAdapter<Objeto>(this,
 				android.R.layout.simple_list_item_1, lista_objectos);
 		
 		lv = (ListView)findViewById(R.id.listaObjetos);
-		lv.setAdapter(adapter);
+		lv.setAdapter(adapterObjetos);
+		
+		
+		datasourceAlumno = new AlumnoDataSource(this);
+		datasourceAlumno.open();
+
+		List<Alumno> lista_alumnos = datasourceAlumno.getAllAlumnos();
+		
+		ArrayAdapter<Alumno> adapterAlumnos = new ArrayAdapter<Alumno>(this,
+				android.R.layout.simple_list_item_1, lista_alumnos);
+		
+		lv = (ListView)findViewById(R.id.listaAlumnos);
+		lv.setAdapter(adapterAlumnos);
+		
+		
+		datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
+		datasourceSerieEjercicios.open();
+		
+		//datasourceSerieEjercicios.createSerieEjercicios("Pelotas", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
+		//datasourceSerieEjercicios.createSerieEjercicios("Bolígrafos", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
+		//datasourceSerieEjercicios.createSerieEjercicios("Pitos", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
+		
+		List<SerieEjercicios> lista_series = datasourceSerieEjercicios.getAllSeriesEjercicios();
+		
+		ArrayAdapter<SerieEjercicios> adapterSeries = new ArrayAdapter<SerieEjercicios>(this,
+				android.R.layout.simple_list_item_1, lista_series);
+		
+		lv = (ListView)findViewById(R.id.listaEjercicios);
+		lv.setAdapter(adapterSeries);
+//		
+//		datasourceEjercicio = new EjercicioDataSource(this);
+//		datasourceEjercicio.open();
+//		
+//		//datasourceEjercicio.createEjercicio("Pelota y telefono", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
+//		//datasourceEjercicio.createEjercicio("Pelota y raqueta", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
+//		//datasourceEjercicio.createEjercicio("Pito y tipo", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
+//		
+//		List<Ejercicio> lista_ejercicios = datasourceEjercicio.getAllEjercicios();
+//		
+//		ArrayAdapter<Ejercicio> adapterEjercicios = new ArrayAdapter<Ejercicio>(this,
+//				android.R.layout.simple_list_item_1, lista_ejercicios);
+//		
+//		lv = (ListView)findViewById(R.id.listaEjercicios);
+//		lv.setAdapter(adapterEjercicios);
 
 		comenzarRec = (Button) findViewById(R.id.btnComenzar);
 		btn1 = (Button) findViewById(R.id.button1);
+
 
 		/*
 		 * if (lista_objectos.size() > 0) { // make a mat and draw something Mat
@@ -136,6 +189,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		datasource.open();
+		datasourceAlumno.open();
 		super.onResume();
 	}
 
@@ -146,6 +200,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		datasource.close();
+		datasourceAlumno.close();
 		super.onPause();
 	}
 

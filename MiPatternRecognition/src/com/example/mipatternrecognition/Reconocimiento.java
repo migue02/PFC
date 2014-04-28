@@ -12,8 +12,8 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 
 import pfc.bd.MySQLiteHelper;
-import pfc.bd.Objeto;
 import pfc.bd.ObjetoDataSource;
+import pfc.obj.Objeto;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

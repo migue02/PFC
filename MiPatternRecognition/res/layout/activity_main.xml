@@ -16,12 +16,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/btnBorrarDB" />
+
     
     <ListView
         android:id="@+id/listaObjetos"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.33"
         android:text="@string/btnBorrarDB" />
+    
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
+    <ListView
+        android:id="@+id/listaAlumnos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.33"
+        android:text="@string/btnBorrarDB" />
+    
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
+    <ListView
+        android:id="@+id/listaEjercicios"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.34"
+        android:text="@string/btnBorrarDB" />
 
 </LinearLayout>

@@ -1,7 +1,5 @@
 package pfc.bd;
 
-import java.sql.SQLClientInfoException;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,23 +13,90 @@ import android.util.Log;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	private static final String DB_NAME = "reconocimiento.db";
+	
 	protected static String TABLE_OBJETO = "objeto";
-	public static final String COLUMN_ID = "_id";
-	public static final String COLUMN_NOMBRE = "nombre";
-	public static final String COLUMN_KEYPOINTS = "keypoints";
-	public static final String COLUMN_DESPCRIPTORES = "descriptores";
+	public static final String COLUMN_OBJETO_ID = "_id";
+	public static final String COLUMN_OBJETO_NOMBRE = "nombre";
+	public static final String COLUMN_OBJETO_KEYPOINTS = "keypoints";
+	public static final String COLUMN_OBJETO_DESPCRIPTORES = "descriptores";
 
-	private String sqlCreateObjeto = "create table " + TABLE_OBJETO + "("
-			+ COLUMN_ID + " integer primary key autoincrement, "
-			+ COLUMN_NOMBRE + " varchar, " + COLUMN_KEYPOINTS + " text, "
-			+ COLUMN_DESPCRIPTORES + " text)";
+	private String sqlCreateObjeto = "create table if not exists " + TABLE_OBJETO + "("
+			+ COLUMN_OBJETO_ID + " integer primary key autoincrement, "
+			+ COLUMN_OBJETO_NOMBRE + " varchar, " + COLUMN_OBJETO_KEYPOINTS + " text, "
+			+ COLUMN_OBJETO_DESPCRIPTORES+ " text)";
 
+	protected static String TABLE_ALUMNO = "alumno";
+	public static final String COLUMN_ALUMNO_ID = "_id";
+	public static final String COLUMN_ALUMNO_NOMBRE = "nombre";
+	public static final String COLUMN_ALUMNO_APELLIDOS = "apellidos";
+	public static final String COLUMN_ALUMNO_FECHA_NAC = "fecha_nac";
+	public static final String COLUMN_ALUMNO_SEXO = "sexo";
+	public static final String COLUMN_ALUMNO_OBSERVACIONES = "observaciones";
+	
+	private String sqlCreateAlumno = "create table if not exists " + TABLE_ALUMNO + "("
+			+ COLUMN_ALUMNO_ID + " integer primary key autoincrement, "
+			+ COLUMN_ALUMNO_NOMBRE + " varchar, " + COLUMN_ALUMNO_APELLIDOS + " varchar, "
+			+ COLUMN_ALUMNO_FECHA_NAC + " date, " + COLUMN_ALUMNO_SEXO + " varchar, " 
+			+ COLUMN_ALUMNO_OBSERVACIONES + " varchar)";
+	
+	protected static String TABLE_EJERCICIO = "ejercicio";
+	public static final String COLUMN_EJERCICIO_ID = "_id";
+	public static final String COLUMN_EJERCICIO_NOMBRE = "nombre";
+	public static final String COLUMN_EJERCICIO_OBJETOS = "objetos";//id de los objetos usando JSON
+	//public static final String COLUMN_EJERCICIO_SONIDO_ACIERTO = "acierto";
+	//public static final String COLUMN_EJERCICIO_SONIDO_FALLO = "fallo";
+	
+	private String sqlCreateEjercicio = "create table if not exists " + TABLE_EJERCICIO + "("
+			+ COLUMN_EJERCICIO_ID + " integer primary key autoincrement, "
+			+ COLUMN_EJERCICIO_NOMBRE + " varchar, " + COLUMN_EJERCICIO_OBJETOS + " varchar)";
+	
+
+	protected static String TABLE_SERIE_EJERCICIOS = "serieEjercicios";
+	public static final String COLUMN_SERIE_EJERCICIOS_ID = "_id";
+	public static final String COLUMN_SERIE_EJERCICIOS_NOMBRE = "nombre";
+	public static final String COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS = "ejercicios";//id de los ejercicios usando JSON
+	
+	private String sqlCreateSerieEjercicios = "create table if not exists " + TABLE_SERIE_EJERCICIOS + "("
+			+ COLUMN_SERIE_EJERCICIOS_ID + " integer primary key autoincrement, "
+			+ COLUMN_SERIE_EJERCICIOS_NOMBRE + " varchar, " + COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS + " varchar)";	
 
 	public String getSqlCreateObjeto() {
 		return sqlCreateObjeto;
 	}
+	
+	public String getSqlDropObjeto() {
+		return sqlDropObjeto;
+	}
+	
+	public String getSqlCreateAlumno() {
+		return sqlCreateAlumno;
+	}
+	
+	public String getSqlDropAlumno() {
+		return sqlDropAlumno;
+	}
+	
+	public String getSqlCreateEjercicio() {
+		return sqlCreateEjercicio;
+	}
+	
+	public String getSqlDropEjercicio() {
+		return sqlDropEjercicio;
+	}
+	
+	public String getSqlCreateSerieEjercicios() {
+		return sqlCreateSerieEjercicios;
+	}
+	
+	public String getSqlDropSerieEjercicios() {
+		return sqlDropSerieEjercicios;
+	}
 
-	private String sqlDropObjeto = "DROP TABLE IF EXISTS" +TABLE_OBJETO;
+	private String sqlDropObjeto = "DROP TABLE IF EXISTS " +TABLE_OBJETO;
+	private String sqlDropAlumno = "DROP TABLE IF EXISTS " +TABLE_ALUMNO;
+	private String sqlDropEjercicio = "DROP TABLE IF EXISTS " +TABLE_EJERCICIO;
+	private String sqlDropSerieEjercicios = "DROP TABLE IF EXISTS " +TABLE_SERIE_EJERCICIOS;
+	
 	/**
 	 * Constructor that create a new DataBaseHelper to create, open, and/or
 	 * manage a database.
@@ -58,6 +123,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		Log.w("DATABASE", "Creando tabla objeto");
 		db.execSQL(sqlCreateObjeto);
+		db.execSQL(sqlCreateAlumno);
 	}
 	
 	
@@ -66,7 +132,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	    Log.w(MySQLiteHelper.class.getName(),
 	        "Upgrading database from version " + oldVersion + " to "
 	            + newVersion + ", which will destroy all old data");
-	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_OBJETO);
+	    db.execSQL(sqlDropObjeto);
+	    db.execSQL(sqlDropAlumno);
 	    onCreate(db);
 	  }
 

@@ -7,14 +7,16 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Vector;
 
+import org.json.JSONArray;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.features2d.KeyPoint;
 
-import pfc.bd.Objeto;
+import pfc.obj.Objeto;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -154,6 +156,41 @@ public class Utils {
 
 		result.fromArray(kpArray);
 
+		return result;
+	}
+	
+	public static String ArrayListToJson(ArrayList<Integer> idsObjeto){
+		String result = "";
+		
+		if (!idsObjeto.isEmpty()) {
+
+			JsonArray jsonArr = new JsonArray();
+			
+			for (int i=0; i<idsObjeto.size();i++){
+				JsonObject obj = new JsonObject();
+				obj.addProperty("id", idsObjeto.get(i));
+				jsonArr.add(obj);
+			}
+			Gson gson = new Gson();
+			result = gson.toJson(jsonArr);
+
+			return result;
+		} else {
+			Log.e(TAG, "Mat not continuous.");
+		}
+		return "{}";
+		
+	}
+	
+	public static ArrayList<Integer> ArrayListFromJson(String idsObjeto){
+		ArrayList<Integer> result=new ArrayList<Integer>();
+		
+		JsonParser parser = new JsonParser();
+		JsonArray jsonArr = parser.parse(idsObjeto).getAsJsonArray();
+		
+		for (int i=0; i< jsonArr.size(); i++)
+			result.add(((JsonObject)jsonArr.get(i)).get("id").getAsInt());
+		
 		return result;
 	}
 

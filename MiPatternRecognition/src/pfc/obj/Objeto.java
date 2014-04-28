@@ -1,10 +1,17 @@
-package pfc.bd;
+package pfc.obj;
 
 public class Objeto {
 	private long id;
 	private String nombre;
 	private String keypoints;
 	private String descriptores;
+
+	public Objeto() {
+		id=-1;
+		nombre="";
+		keypoints="";
+		descriptores="";
+	}
 
 	public long getId() {
 		return id;
