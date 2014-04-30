@@ -81,6 +81,10 @@ public class AlumnoDataSource {
 		return database.delete(MySQLiteHelper.TABLE_ALUMNO, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id , null)>0;
 	}
 	
+	public boolean borraTodosAlumno(int id){
+		return database.delete(MySQLiteHelper.TABLE_ALUMNO, null , null)>0;
+	}
+	
 	public List<Alumno> getAllAlumnos() {
 		List<Alumno> alumnos = new ArrayList<Alumno>();
 		Log.w("Obteniendo...", "Obteniendo todos los alumnos...");
