@@ -64,6 +64,23 @@ public class AlumnoDataSource {
 		return newAlumno;
 	}
 	
+	public boolean modificaAlumno(int id, String nombre, String apellidos,
+			Date fecha_nac, Sexo sexo, String observaciones) {
+
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, fecha_nac.toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
+		
+		return database.update(MySQLiteHelper.TABLE_ALUMNO, values, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id ,null)>0;
+	}
+	
+	public boolean borraAlumno(int id){
+		return database.delete(MySQLiteHelper.TABLE_ALUMNO, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id , null)>0;
+	}
+	
 	public List<Alumno> getAllAlumnos() {
 		List<Alumno> alumnos = new ArrayList<Alumno>();
 		Log.w("Obteniendo...", "Obteniendo todos los alumnos...");
