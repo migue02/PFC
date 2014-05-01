@@ -1,6 +1,8 @@
 package com.example.mipatternrecognition;
 
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -108,6 +110,14 @@ public class MainActivity extends Activity {
 		
 		datasourceAlumno = new AlumnoDataSource(this);
 		datasourceAlumno.open();
+		
+		datasourceAlumno.borraTodosAlumno();
+		
+		Calendar cal = Calendar.getInstance();
+		cal.set(1990, Calendar.NOVEMBER, 02);
+		Date date = cal.getTime();
+		
+		datasourceAlumno.createAlumno("Miguel", "Morales", date, pfc.obj.TiposPropios.Sexo.Hombre, "Ninguna");
 
 		List<Alumno> lista_alumnos = datasourceAlumno.getAllAlumnos();
 		

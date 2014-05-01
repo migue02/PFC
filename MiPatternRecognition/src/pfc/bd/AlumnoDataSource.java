@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import pfc.obj.Alumno;
 import pfc.obj.TiposPropios.Sexo;
@@ -42,11 +43,12 @@ public class AlumnoDataSource {
 	
 	public Alumno createAlumno(String nombre, String apellidos,
 			Date fecha_nac, Sexo sexo, String observaciones) {
-
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
-		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, fecha_nac.toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, 
+				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
+		Log.w("ERROR_FECHA", new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
 		
@@ -70,7 +72,8 @@ public class AlumnoDataSource {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
-		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, fecha_nac.toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, 
+				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
 		
@@ -81,7 +84,7 @@ public class AlumnoDataSource {
 		return database.delete(MySQLiteHelper.TABLE_ALUMNO, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id , null)>0;
 	}
 	
-	public boolean borraTodosAlumno(int id){
+	public boolean borraTodosAlumno(){
 		return database.delete(MySQLiteHelper.TABLE_ALUMNO, null , null)>0;
 	}
 	
@@ -108,9 +111,10 @@ public class AlumnoDataSource {
 		alumno.setNombre(cursor.getString(1));
 		alumno.setApellidos(cursor.getString(2));
 		try {
-			alumno.setFecha_nac(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").parse(cursor.getString(3)));
+			alumno.setFecha_nac(new SimpleDateFormat("dd/MM/yyyy").parse(cursor.getString(3)));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
+			Log.w("ERROR_FECHA", "Error al obtener la fecha");
 			e.printStackTrace();
 		}
 		alumno.setSexo(Sexo.valueOf(cursor.getString(4)));

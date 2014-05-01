@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -214,7 +217,5 @@ public class Utils {
 	public static void toast(Objeto obj, Context context){
 		Toast.makeText(context, "Id ="+obj.getId() , Toast.LENGTH_SHORT).show();
 	}
-
-
-
+	
 }
