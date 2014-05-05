@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import pfc.obj.Alumno;
 import pfc.obj.TiposPropios.Sexo;
@@ -22,10 +21,11 @@ public class AlumnoDataSource {
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
 	private String[] allColumns = { MySQLiteHelper.COLUMN_ALUMNO_ID,
-			MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS,
-			MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, MySQLiteHelper.COLUMN_ALUMNO_SEXO, 
+			MySQLiteHelper.COLUMN_ALUMNO_NOMBRE,
+			MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS,
+			MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
+			MySQLiteHelper.COLUMN_ALUMNO_SEXO,
 			MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES };
-
 
 	public AlumnoDataSource(Context context) {
 		Log.w("Creando...", "Creando bd");
@@ -35,30 +35,41 @@ public class AlumnoDataSource {
 	public void open() throws SQLException {
 		database = dbHelper.getWritableDatabase();
 		database.execSQL(dbHelper.getSqlCreateAlumno());
+		database.execSQL(dbHelper.sqlenableForeingKeys);
 	}
 
 	public void close() {
 		dbHelper.close();
 	}
+
+	public Alumno createAlumno(Alumno alumno) {
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, alumno.getNombre());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, alumno.getApellidos());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
+				new SimpleDateFormat("dd/MM/yyyy").format(alumno.getFecha_nac_AsDate()));
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, alumno.getSexo().toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, alumno.getObservaciones());
+
+		alumno.setIdAlumno((int)database.insert(MySQLiteHelper.TABLE_ALUMNO, null, values));
+		return alumno;
+	}
 	
-	public Alumno createAlumno(String nombre, String apellidos,
-			Date fecha_nac, Sexo sexo, String observaciones) {
+	public Alumno createAlumno(String nombre, String apellidos, Date fecha_nac,
+			Sexo sexo, String observaciones) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
-		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, 
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
 				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
-		Log.w("ERROR_FECHA", new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
-		
+
 		long insertId = database.insert(MySQLiteHelper.TABLE_ALUMNO, null,
 				values); // Se inserta un alumno y se deuelve su id
-		Log.w("Creando...", "Alumno " + nombre + " creado con id "+ insertId);
-		Cursor cursor = database.query(MySQLiteHelper.TABLE_ALUMNO,
-		allColumns, MySQLiteHelper.COLUMN_ALUMNO_ID + " = " + insertId, null, null,
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_ALUMNO, allColumns,
+				MySQLiteHelper.COLUMN_ALUMNO_ID + " = " + insertId, null, null,
 				null, null);// devuelve el alumno que se acaba de insertar
-		
 
 		cursor.moveToFirst();
 		Alumno newAlumno = cursorToAlumno(cursor);
@@ -66,60 +77,94 @@ public class AlumnoDataSource {
 		return newAlumno;
 	}
 	
+	public boolean modificaAlumno(Alumno alumno) {
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, alumno.getNombre());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, alumno.getApellidos());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
+				new SimpleDateFormat("dd/MM/yyyy").format(alumno.getFecha_nac_AsDate()));
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, alumno.getSexo().toString());
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, alumno.getObservaciones());
+
+		return database.update(MySQLiteHelper.TABLE_ALUMNO, values,
+				MySQLiteHelper.COLUMN_ALUMNO_ID + " = " + alumno.getIdAlumno(), null) > 0;
+	}
+
 	public boolean modificaAlumno(int id, String nombre, String apellidos,
 			Date fecha_nac, Sexo sexo, String observaciones) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
-		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC, 
+		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
 				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
-		
-		return database.update(MySQLiteHelper.TABLE_ALUMNO, values, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id ,null)>0;
+
+		return database.update(MySQLiteHelper.TABLE_ALUMNO, values,
+				MySQLiteHelper.COLUMN_ALUMNO_ID + " = " + id, null) > 0;
+	}
+
+	public boolean borraAlumno(int id) {
+		return database.delete(MySQLiteHelper.TABLE_ALUMNO,
+				MySQLiteHelper.COLUMN_ALUMNO_ID + " = " + id, null) > 0;
+	}
+
+	public boolean borraTodosAlumno() {
+		return database.delete(MySQLiteHelper.TABLE_ALUMNO, null, null) > 0;
 	}
 	
-	public boolean borraAlumno(int id){
-		return database.delete(MySQLiteHelper.TABLE_ALUMNO, MySQLiteHelper.COLUMN_ALUMNO_ID +" = "+id , null)>0;
+	public void dropTableSerieEjericios() {
+		database.execSQL(dbHelper.getSqlDropAlumno());
+		database.execSQL(dbHelper.getSqlCreateAlumno());
 	}
-	
-	public boolean borraTodosAlumno(){
-		return database.delete(MySQLiteHelper.TABLE_ALUMNO, null , null)>0;
-	}
-	
+
 	public List<Alumno> getAllAlumnos() {
-		List<Alumno> alumnos = new ArrayList<Alumno>();
-		Log.w("Obteniendo...", "Obteniendo todos los alumnos...");
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_ALUMNO, allColumns,
 				null, null, null, null, null);
 
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Alumno alumno = cursorToAlumno(cursor);
-			alumnos.add(alumno);
-			cursor.moveToNext();
+		List<Alumno> alumnos = new ArrayList<Alumno>();
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				Alumno alumno = cursorToAlumno(cursor);
+				alumnos.add(alumno);
+				cursor.moveToNext();
+			}
+			cursor.close();
 		}
-		// make sure to close the cursor
-		cursor.close();			
 		return alumnos;
 	}
-	
+
+	public Alumno getAlumnos(int id) {
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_ALUMNO, allColumns,
+				MySQLiteHelper.COLUMN_RESULTADO_ID + " = " + id, null, null,
+				null, null);
+
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			Alumno alumno = cursorToAlumno(cursor);
+			cursor.close();
+			return alumno;
+		}
+		return null;
+	}
+
 	private Alumno cursorToAlumno(Cursor cursor) {
 		Alumno alumno = new Alumno();
 		alumno.setIdAlumno(cursor.getInt(0));
 		alumno.setNombre(cursor.getString(1));
 		alumno.setApellidos(cursor.getString(2));
 		try {
-			alumno.setFecha_nac(new SimpleDateFormat("dd/MM/yyyy").parse(cursor.getString(3)));
+			alumno.setFecha_nac(new SimpleDateFormat("dd/MM/yyyy").parse(cursor
+					.getString(3)));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			Log.w("ERROR_FECHA", "Error al obtener la fecha");
+			Log.e("ERROR_FECHA", "Error al obtener la fecha");
 			e.printStackTrace();
 		}
 		alumno.setSexo(Sexo.valueOf(cursor.getString(4)));
 		alumno.setObservaciones(cursor.getString(5));
 		return alumno;
 	}
-	
+
 }

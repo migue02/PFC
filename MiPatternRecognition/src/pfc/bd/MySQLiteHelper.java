@@ -13,89 +13,139 @@ import android.util.Log;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	private static final String DB_NAME = "reconocimiento.db";
-	
-	protected static String TABLE_OBJETO = "objeto";
+
+	protected static String TABLE_OBJETO = "Objeto";
 	public static final String COLUMN_OBJETO_ID = "_id";
 	public static final String COLUMN_OBJETO_NOMBRE = "nombre";
 	public static final String COLUMN_OBJETO_KEYPOINTS = "keypoints";
 	public static final String COLUMN_OBJETO_DESPCRIPTORES = "descriptores";
 
-	private String sqlCreateObjeto = "create table if not exists " + TABLE_OBJETO + "("
-			+ COLUMN_OBJETO_ID + " integer primary key autoincrement, "
-			+ COLUMN_OBJETO_NOMBRE + " varchar, " + COLUMN_OBJETO_KEYPOINTS + " text, "
-			+ COLUMN_OBJETO_DESPCRIPTORES+ " text)";
+	private String sqlCreateObjeto = "create table if not exists " + TABLE_OBJETO + "(" 
+			+ COLUMN_OBJETO_ID + " integer primary key autoincrement, " 
+			+ COLUMN_OBJETO_NOMBRE + " varchar, " 
+			+ COLUMN_OBJETO_KEYPOINTS + " text, "
+			+ COLUMN_OBJETO_DESPCRIPTORES + " text)";
 
-	protected static String TABLE_ALUMNO = "alumno";
+	protected static String TABLE_ALUMNO = "Alumno";
 	public static final String COLUMN_ALUMNO_ID = "_id";
 	public static final String COLUMN_ALUMNO_NOMBRE = "nombre";
 	public static final String COLUMN_ALUMNO_APELLIDOS = "apellidos";
 	public static final String COLUMN_ALUMNO_FECHA_NAC = "fecha_nac";
 	public static final String COLUMN_ALUMNO_SEXO = "sexo";
 	public static final String COLUMN_ALUMNO_OBSERVACIONES = "observaciones";
-	
-	private String sqlCreateAlumno = "create table if not exists " + TABLE_ALUMNO + "("
-			+ COLUMN_ALUMNO_ID + " integer primary key autoincrement, "
-			+ COLUMN_ALUMNO_NOMBRE + " varchar, " + COLUMN_ALUMNO_APELLIDOS + " varchar, "
-			+ COLUMN_ALUMNO_FECHA_NAC + " date, " + COLUMN_ALUMNO_SEXO + " varchar, " 
+
+	private String sqlCreateAlumno = "create table if not exists " + TABLE_ALUMNO + "(" 
+			+ COLUMN_ALUMNO_ID + " integer primary key autoincrement, " 
+			+ COLUMN_ALUMNO_NOMBRE	+ " varchar, " 
+			+ COLUMN_ALUMNO_APELLIDOS + " varchar, "
+			+ COLUMN_ALUMNO_FECHA_NAC + " date, " 
+			+ COLUMN_ALUMNO_SEXO + " varchar, " 
 			+ COLUMN_ALUMNO_OBSERVACIONES + " varchar)";
-	
-	protected static String TABLE_EJERCICIO = "ejercicio";
+
+	protected static String TABLE_EJERCICIO = "Ejercicio";
 	public static final String COLUMN_EJERCICIO_ID = "_id";
 	public static final String COLUMN_EJERCICIO_NOMBRE = "nombre";
-	public static final String COLUMN_EJERCICIO_OBJETOS = "objetos";//id de los objetos usando JSON
-	//public static final String COLUMN_EJERCICIO_SONIDO_ACIERTO = "acierto";
-	//public static final String COLUMN_EJERCICIO_SONIDO_FALLO = "fallo";
-	
-	private String sqlCreateEjercicio = "create table if not exists " + TABLE_EJERCICIO + "("
-			+ COLUMN_EJERCICIO_ID + " integer primary key autoincrement, "
-			+ COLUMN_EJERCICIO_NOMBRE + " varchar, " + COLUMN_EJERCICIO_OBJETOS + " varchar)";
-	
+	public static final String COLUMN_EJERCICIO_OBJETOS = "objetos";// id de los
+																	// objetos
+																	// usando
+																	// JSON
+	// public static final String COLUMN_EJERCICIO_SONIDO_ACIERTO = "acierto";
+	// public static final String COLUMN_EJERCICIO_SONIDO_FALLO = "fallo";
 
-	protected static String TABLE_SERIE_EJERCICIOS = "serieEjercicios";
+	private String sqlCreateEjercicio = "create table if not exists " + TABLE_EJERCICIO + "(" 
+			+ COLUMN_EJERCICIO_ID + " integer primary key autoincrement, " 
+			+ COLUMN_EJERCICIO_NOMBRE + " varchar, " 
+			+ COLUMN_EJERCICIO_OBJETOS + " varchar)";
+
+	protected static String TABLE_SERIE_EJERCICIOS = "SerieEjercicios";
 	public static final String COLUMN_SERIE_EJERCICIOS_ID = "_id";
 	public static final String COLUMN_SERIE_EJERCICIOS_NOMBRE = "nombre";
-	public static final String COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS = "ejercicios";//id de los ejercicios usando JSON
-	
-	private String sqlCreateSerieEjercicios = "create table if not exists " + TABLE_SERIE_EJERCICIOS + "("
-			+ COLUMN_SERIE_EJERCICIOS_ID + " integer primary key autoincrement, "
-			+ COLUMN_SERIE_EJERCICIOS_NOMBRE + " varchar, " + COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS + " varchar)";	
+	public static final String COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS = "ejercicios";// id
+																					// de
+																					// los
+																					// ejercicios
+																					// usando
+																					// JSON
 
+	private String sqlCreateSerieEjercicios = "create table if not exists "	+ TABLE_SERIE_EJERCICIOS + "(" 
+			+ COLUMN_SERIE_EJERCICIOS_ID + " integer primary key autoincrement, "
+			+ COLUMN_SERIE_EJERCICIOS_NOMBRE + " varchar, "
+			+ COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS + " varchar)";
+
+	protected static String TABLE_RESULTADO = "Resultado";
+	public static final String COLUMN_RESULTADO_ID = "_id";
+	public static final String COLUMN_RESULTADO_ID_ALUMNO = "idAlumno";
+	public static final String COLUMN_RESULTADO_ID_EJERCICIO = "idEjercicio";
+	public static final String COLUMN_RESULTADO_FECHA = "fechaRealizacion";
+	public static final String COLUMN_RESULTADO_DURACION = "duracion";
+	public static final String COLUMN_RESULTADO_NUM_OBJETOS = "numeroObjetosReconocer";
+	public static final String COLUMN_RESULTADO_ACIERTOS = "aciertos";
+	public static final String COLUMN_RESULTADO_FALLOS = "fallos";
+	public static final String COLUMN_RESULTADO_PUNTUACION = "puntuacion";
+
+	private String sqlCreateResultado = "create table if not exists " + TABLE_RESULTADO 
+			+ "(" + COLUMN_RESULTADO_ID + " integer primary key autoincrement, "
+			+ COLUMN_RESULTADO_ID_ALUMNO + " integer "
+			+ "REFERENCES "+TABLE_ALUMNO+"("+COLUMN_ALUMNO_ID+") ON DELETE CASCADE, "//ON UPDATE CASCADE no necesario ya que el id no se va a modificar nunca
+			+ COLUMN_RESULTADO_ID_EJERCICIO + " integer "
+			+ "REFERENCES "+TABLE_EJERCICIO+"("+COLUMN_EJERCICIO_ID+") ON DELETE CASCADE, "//ON UPDATE CASCADE
+			+ COLUMN_RESULTADO_FECHA + " date, " 
+			+ COLUMN_RESULTADO_DURACION + " integer, " 
+			+ COLUMN_RESULTADO_NUM_OBJETOS + " integer, "
+			+ COLUMN_RESULTADO_ACIERTOS + " integer, "
+			+ COLUMN_RESULTADO_FALLOS + " integer, "
+			+ COLUMN_RESULTADO_PUNTUACION + " real)";
+	
+	private String sqlDropObjeto = "DROP TABLE IF EXISTS " + TABLE_OBJETO;
+	private String sqlDropAlumno = "DROP TABLE IF EXISTS " + TABLE_ALUMNO;
+	private String sqlDropEjercicio = "DROP TABLE IF EXISTS " + TABLE_EJERCICIO;
+	private String sqlDropSerieEjercicios = "DROP TABLE IF EXISTS "
+			+ TABLE_SERIE_EJERCICIOS;
+	
+	public String sqlenableForeingKeys = "PRAGMA foreign_keys = ON";
+	
+	private String sqlDropResultado = "DROP TABLE IF EXISTS "
+			+ TABLE_RESULTADO;
+	
 	public String getSqlCreateObjeto() {
 		return sqlCreateObjeto;
 	}
-	
+
 	public String getSqlDropObjeto() {
 		return sqlDropObjeto;
 	}
-	
+
 	public String getSqlCreateAlumno() {
 		return sqlCreateAlumno;
 	}
-	
+
 	public String getSqlDropAlumno() {
 		return sqlDropAlumno;
 	}
-	
+
 	public String getSqlCreateEjercicio() {
 		return sqlCreateEjercicio;
 	}
-	
+
 	public String getSqlDropEjercicio() {
 		return sqlDropEjercicio;
 	}
-	
+
 	public String getSqlCreateSerieEjercicios() {
 		return sqlCreateSerieEjercicios;
 	}
-	
+
 	public String getSqlDropSerieEjercicios() {
 		return sqlDropSerieEjercicios;
 	}
 
-	private String sqlDropObjeto = "DROP TABLE IF EXISTS " +TABLE_OBJETO;
-	private String sqlDropAlumno = "DROP TABLE IF EXISTS " +TABLE_ALUMNO;
-	private String sqlDropEjercicio = "DROP TABLE IF EXISTS " +TABLE_EJERCICIO;
-	private String sqlDropSerieEjercicios = "DROP TABLE IF EXISTS " +TABLE_SERIE_EJERCICIOS;
+	public String getSqlCreateResultado() {
+		return sqlCreateResultado;
+	}
+
+	public String getSqlDropResultado() {
+		return sqlDropResultado;
+	}
 	
 	/**
 	 * Constructor that create a new DataBaseHelper to create, open, and/or
@@ -107,7 +157,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public MySQLiteHelper(Context context) {
 		super(context, DB_NAME, null, 1);
 		Log.w("DATABASE", context.getDatabasePath(DB_NAME).toString());
-		//context.deleteDatabase(context.getDatabasePath(DB_NAME).toString());
+		// context.deleteDatabase(context.getDatabasePath(DB_NAME).toString());
 	}
 
 	/**
@@ -120,95 +170,97 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
-		Log.w("DATABASE", "Creando tabla objeto");
+		Log.w("DATABASE", "Creando tablas");
+		db.execSQL(sqlenableForeingKeys);
 		db.execSQL(sqlCreateObjeto);
 		db.execSQL(sqlCreateAlumno);
+		db.execSQL(sqlCreateEjercicio);
+		db.execSQL(sqlCreateSerieEjercicios);
+		db.execSQL(sqlCreateResultado);
 	}
-	
-	
+
 	@Override
-	  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-	    Log.w(MySQLiteHelper.class.getName(),
-	        "Upgrading database from version " + oldVersion + " to "
-	            + newVersion + ", which will destroy all old data");
-	    db.execSQL(sqlDropObjeto);
-	    db.execSQL(sqlDropAlumno);
-	    onCreate(db);
-	  }
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.w(MySQLiteHelper.class.getName(),
+				"Upgrading database from version " + oldVersion + " to "
+						+ newVersion + ", which will destroy all old data");
+		db.execSQL(sqlDropObjeto);
+		db.execSQL(sqlDropAlumno);
+		onCreate(db);
+	}
 
-
-//	/**
-//	 * It inserts in the PI table a new row with the values passed in the
-//	 * parameters
-//	 * 
-//	 * @param keypoints
-//	 *            The data of the object (keypoints)
-//	 * 
-//	 * @param descriptors
-//	 *            The data of the object (descriptors)
-//	 */
-//	public void insertObjeto(String nombre, String keypoints, String descriptors) {
-//		SQLiteDatabase db = getWritableDatabase();
-//		if (db != null) {
-//			String aux = "INSERT INTO " + TABLE_OBJETO
-//					+ " (nombre, keypoints, descriptors) " + " VALUES( "
-//					+ nombre + "," + keypoints + "," + descriptors + " ) ";
-//			db.execSQL(aux);
-//			db.close();
-//		}
-//	}
-//
-//	/**
-//	 * It will read in the PI table and return a cursor with the query of a
-//	 * select of the values "u" and "y" of every rows in the PI table
-//	 * 
-//	 * @return It return a cursor with the query of a select of the values "u"
-//	 *         and "y" of every rows in the PI table
-//	 */
-//	public Cursor readObjeto(int id) {
-//		SQLiteDatabase db = getReadableDatabase();
-//
-//		return db.rawQuery("SELECT nombre, keypoints, descriptors FROM "
-//				+ TABLE_OBJETO + "where id = " + id, null);
-//	}
-//
-//	/**
-//	 * It will read in the PI table and return a cursor with the query of a
-//	 * select of the values "u" and "y" of every rows in the PI table
-//	 * 
-//	 * @return It return a cursor with the query of a select of the values "u"
-//	 *         and "y" of every rows in the PI table
-//	 */
-//	public Cursor readObjetos() {
-//		SQLiteDatabase db = getReadableDatabase();
-//
-//		return db.rawQuery("SELECT * FROM " + TABLE_OBJETO, null);
-//	}
-//
-//	/**
-//	 * It will read in the PI table and return a cursor with the query of a
-//	 * select of the values "u" and "y" of every rows in the PI table
-//	 * 
-//	 * @return It return a cursor with the query of a select of the values "u"
-//	 *         and "y" of every rows in the PI table
-//	 */
-//	public int readCountObjetos() {
-//		SQLiteDatabase db = getReadableDatabase();
-//
-//		return db.rawQuery("SELECT * FROM " + TABLE_OBJETO, null).getCount();
-//	}
-//
-//	/**
-//	 * It will drop the PI table if exists and will create a new one
-//	 * 
-//	 */
-//	public void dropObjeto() {
-//
-//		SQLiteDatabase db = getReadableDatabase();
-//		db.execSQL("DROP TABLE IF EXISTS " + TABLE_OBJETO);
-//		db.execSQL(sqlCreateObjeto);
-//		db.close();
-//	}
+	// /**
+	// * It inserts in the PI table a new row with the values passed in the
+	// * parameters
+	// *
+	// * @param keypoints
+	// * The data of the object (keypoints)
+	// *
+	// * @param descriptors
+	// * The data of the object (descriptors)
+	// */
+	// public void insertObjeto(String nombre, String keypoints, String
+	// descriptors) {
+	// SQLiteDatabase db = getWritableDatabase();
+	// if (db != null) {
+	// String aux = "INSERT INTO " + TABLE_OBJETO
+	// + " (nombre, keypoints, descriptors) " + " VALUES( "
+	// + nombre + "," + keypoints + "," + descriptors + " ) ";
+	// db.execSQL(aux);
+	// db.close();
+	// }
+	// }
+	//
+	// /**
+	// * It will read in the PI table and return a cursor with the query of a
+	// * select of the values "u" and "y" of every rows in the PI table
+	// *
+	// * @return It return a cursor with the query of a select of the values "u"
+	// * and "y" of every rows in the PI table
+	// */
+	// public Cursor readObjeto(int id) {
+	// SQLiteDatabase db = getReadableDatabase();
+	//
+	// return db.rawQuery("SELECT nombre, keypoints, descriptors FROM "
+	// + TABLE_OBJETO + "where id = " + id, null);
+	// }
+	//
+	// /**
+	// * It will read in the PI table and return a cursor with the query of a
+	// * select of the values "u" and "y" of every rows in the PI table
+	// *
+	// * @return It return a cursor with the query of a select of the values "u"
+	// * and "y" of every rows in the PI table
+	// */
+	// public Cursor readObjetos() {
+	// SQLiteDatabase db = getReadableDatabase();
+	//
+	// return db.rawQuery("SELECT * FROM " + TABLE_OBJETO, null);
+	// }
+	//
+	// /**
+	// * It will read in the PI table and return a cursor with the query of a
+	// * select of the values "u" and "y" of every rows in the PI table
+	// *
+	// * @return It return a cursor with the query of a select of the values "u"
+	// * and "y" of every rows in the PI table
+	// */
+	// public int readCountObjetos() {
+	// SQLiteDatabase db = getReadableDatabase();
+	//
+	// return db.rawQuery("SELECT * FROM " + TABLE_OBJETO, null).getCount();
+	// }
+	//
+	// /**
+	// * It will drop the PI table if exists and will create a new one
+	// *
+	// */
+	// public void dropObjeto() {
+	//
+	// SQLiteDatabase db = getReadableDatabase();
+	// db.execSQL("DROP TABLE IF EXISTS " + TABLE_OBJETO);
+	// db.execSQL(sqlCreateObjeto);
+	// db.close();
+	// }
 
 }

@@ -125,9 +125,13 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		/* Listener Vista Normal Button */
 		buttonVistaNormal.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				buscandoObjeto = false;
+				Intent myIntent = new Intent(Reconocimiento.this,
+						ReconocimientoObjeto.class);
+				finish();
+				startActivity(myIntent);
+				/*buscandoObjeto = false;
 				patronAdquirido = false;
-				encontrado = false;
+				encontrado = false;*/
 			}
 		});
 

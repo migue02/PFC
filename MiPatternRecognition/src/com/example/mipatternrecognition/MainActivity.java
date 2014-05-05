@@ -1,61 +1,46 @@
 package com.example.mipatternrecognition;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 
-import pfc.bd.AlumnoDataSource;
 import pfc.bd.EjercicioDataSource;
 import pfc.bd.MySQLiteHelper;
 import pfc.bd.ObjetoDataSource;
+import pfc.bd.ResultadoDataSource;
 import pfc.bd.SerieEjerciciosDataSource;
-import pfc.obj.Alumno;
 import pfc.obj.Ejercicio;
 import pfc.obj.Objeto;
 import pfc.obj.SerieEjercicios;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.Random;
-
-import android.app.ListActivity;
 
 public class MainActivity extends Activity {
 
 	private static final String TAG = "Reconocimiento::MainActivity";
-	private ObjetoDataSource datasource;
-	private AlumnoDataSource datasourceAlumno;
+	private ObjetoDataSource datasourceObjeto;
 	private EjercicioDataSource datasourceEjercicio;
 	private SerieEjerciciosDataSource datasourceSerieEjercicios;
-	private ImageView selectedImage;
+	private ResultadoDataSource datasourceResultado;
 
 	// Buttons
 	private Button comenzarRec;
@@ -95,37 +80,17 @@ public class MainActivity extends Activity {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
 
-		datasource = new ObjetoDataSource(this);
-		datasource.open();
+		datasourceObjeto = new ObjetoDataSource(this);
+		datasourceObjeto.open();
 		
 		
-		List<Objeto> lista_objectos = datasource.getAllObjetos();
+		List<Objeto> lista_objectos = datasourceObjeto.getAllObjetos();
 
 		ArrayAdapter<Objeto> adapterObjetos = new ArrayAdapter<Objeto>(this,
 				android.R.layout.simple_list_item_1, lista_objectos);
 		
 		lv = (ListView)findViewById(R.id.listaObjetos);
 		lv.setAdapter(adapterObjetos);
-		
-		
-		datasourceAlumno = new AlumnoDataSource(this);
-		datasourceAlumno.open();
-		
-		datasourceAlumno.borraTodosAlumno();
-		
-		Calendar cal = Calendar.getInstance();
-		cal.set(1990, Calendar.NOVEMBER, 02);
-		Date date = cal.getTime();
-		
-		datasourceAlumno.createAlumno("Miguel", "Morales", date, pfc.obj.TiposPropios.Sexo.Hombre, "Ninguna");
-
-		List<Alumno> lista_alumnos = datasourceAlumno.getAllAlumnos();
-		
-		ArrayAdapter<Alumno> adapterAlumnos = new ArrayAdapter<Alumno>(this,
-				android.R.layout.simple_list_item_1, lista_alumnos);
-		
-		lv = (ListView)findViewById(R.id.listaAlumnos);
-		lv.setAdapter(adapterAlumnos);
 		
 		
 		datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
@@ -158,6 +123,10 @@ public class MainActivity extends Activity {
 //		lv = (ListView)findViewById(R.id.listaEjercicios);
 //		lv.setAdapter(adapterEjercicios);
 
+		datasourceResultado = new ResultadoDataSource(this);
+		datasourceResultado.open();
+		
+		
 		comenzarRec = (Button) findViewById(R.id.btnComenzar);
 		btn1 = (Button) findViewById(R.id.button1);
 
@@ -186,11 +155,12 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		/* Listener Captura Objeto Button */
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				datasource.deleteTableObjeto();
-
+				Intent myIntent = new Intent(MainActivity.this,
+						Alumnos.class);
+				finish();
+				startActivity(myIntent);
 			}
 		});
 
@@ -198,8 +168,10 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		datasource.open();
-		datasourceAlumno.open();
+		datasourceObjeto.open();
+		//datasourceEjercicio.open();
+		datasourceSerieEjercicios.open();
+		datasourceResultado.open();
 		super.onResume();
 	}
 
@@ -209,8 +181,10 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		datasource.close();
-		datasourceAlumno.close();
+		datasourceObjeto.close();
+		//datasourceEjercicio.close();
+		datasourceSerieEjercicios.close();
+		datasourceResultado.close();
 		super.onPause();
 	}
 

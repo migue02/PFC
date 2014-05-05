@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
 
     <string name="app_name">MiPatternRecognition</string>
     <string name="action_settings">Settings</string>
@@ -12,5 +11,8 @@
     <string name="comenzarRec">Comenzar reconocimiento</string>
     <string name="hintNombreEdit">Nombre</string>
     <string name="btnBorrarDB">Borrrar DB</string>
+    <string name="title_activity_alumnos">Alumnos</string>
+    <string name="title_activity_reconocimiento_objeto">ReconocimientoObjeto</string>
+    <string name="title_activity_dialog_objeto">DialogObjeto</string>
 
 </resources>

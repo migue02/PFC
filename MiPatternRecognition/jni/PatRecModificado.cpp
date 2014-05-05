@@ -25,7 +25,7 @@ const int SIFT_DETECTION = 1; //SIFT (nonfree module)
 
 long objeto_long;
 
-JNIEXPORT jobjectArray JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindFeatures(
+JNIEXPORT jobjectArray JNICALL Java_com_example_mipatternrecognition_ReconocimientoObjeto_FindFeatures(
 		JNIEnv* env, jobject, jlong addrGray, jlong addrRgba, jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
 	Mat& mRgb = *(Mat*) addrRgba;
@@ -70,7 +70,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_mipatternrecognition_Reconocimie
 	return newKeyPointArr;
 }
 
-JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindObject(
+JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_ReconocimientoObjeto_FindObject(
 		JNIEnv* env, jobject, jlong addrGray, jlong addrRgba,
 		jobjectArray arrayKeyPoints, jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
@@ -215,7 +215,7 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 
 vector<KeyPoint> keyPoints_1, keyPoints_2;
 
-JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindFeatures2(
+JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_ReconocimientoObjeto_FindFeatures2(
 		JNIEnv*, jobject, jlong addrGray, jlong addrRgba, jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
 	Mat& mRgb = *(Mat*) addrRgba;
@@ -245,7 +245,7 @@ JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_Find
 	return true;
 }
 
-JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_Reconocimiento_FindObject2(
+JNIEXPORT bool JNICALL Java_com_example_mipatternrecognition_ReconocimientoObjeto_FindObject2(
 		JNIEnv*, jobject, jlong addrGray, jlong addrRgba, jlong addrDescriptores) {
 	Mat& mGr = *(Mat*) addrGray;
 	Mat& mRgb = *(Mat*) addrRgba;

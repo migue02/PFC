@@ -7,19 +7,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
-import org.json.JSONArray;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.features2d.KeyPoint;
 
 import pfc.obj.Objeto;
+import pfc.obj.TiposPropios.Sexo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -27,12 +28,43 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 public class Utils {
 
+	public static Date fechaRandom(){
+		Calendar cal = Calendar.getInstance();
+		Random rn = new Random();
+		cal.set(1960 + rn.nextInt(2014 - 1960 + 1), rn.nextInt(12), 1960 + rn.nextInt(28));
+		return cal.getTime();
+	}
+	
+	public static String nombreRandom(){
+		List<String> nombres = Arrays.asList("Miguel", "Juan", "Manuel",
+				"Pepe", "Ángela", "Sofía", "Almudena");
+		return nombres.get(new Random().nextInt(nombres.size()));
+	}
+	
+	public static String apellidoRandom(){
+		List<String> apellidos = Arrays.asList("Martín", "Morales", "Lucena",
+				"Briviesca", "Bello", "López", "Rodríguez");
+		return apellidos.get(new Random().nextInt(apellidos.size()));
+	}
+	
+	public static Sexo sexoRandom(){
+		switch (new Random().nextInt(3)) {
+		case 0:
+			return Sexo.Mujer;
+		case 1:
+			return Sexo.Hombre;
+		default:
+			return Sexo.NoDef;
+		} 
+	}
+	
 	private static final String TAG = "Reconocimiento::Utils";
 
 	public static String matToJson(Mat mat) {
@@ -197,25 +229,28 @@ public class Utils {
 		return result;
 	}
 
-	public static void copyFile(String in, String out) throws IOException {
-		File in1 = new File(in);
-		File out1 = new File(out);
-		FileChannel inChannel = new FileInputStream(in1).getChannel();
-		FileChannel outChannel = new FileOutputStream(out1).getChannel();
-		try {
-			inChannel.transferTo(0, inChannel.size(), outChannel);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (inChannel != null)
-				inChannel.close();
-			if (outChannel != null)
-				outChannel.close();
-		}
-	}
-	
 	public static void toast(Objeto obj, Context context){
 		Toast.makeText(context, "Id ="+obj.getId() , Toast.LENGTH_SHORT).show();
 	}
 	
+	public static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
+	    FileChannel fromChannel = null;
+	    FileChannel toChannel = null;
+	    try {
+	        fromChannel = fromFile.getChannel();
+	        toChannel = toFile.getChannel();
+	        fromChannel.transferTo(0, fromChannel.size(), toChannel);
+	    } finally {
+	        try {
+	            if (fromChannel != null) {
+	                fromChannel.close();
+	            }
+	        } finally {
+	            if (toChannel != null) {
+	                toChannel.close();
+	            }
+	        }
+	    }
+	}
+
 }

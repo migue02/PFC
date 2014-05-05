@@ -22,17 +22,17 @@ public class ObjetoDataSource {
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
 	private String[] allColumns = { MySQLiteHelper.COLUMN_OBJETO_ID,
-			MySQLiteHelper.COLUMN_OBJETO_NOMBRE, MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS,
+			MySQLiteHelper.COLUMN_OBJETO_NOMBRE,
+			MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS,
 			MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES };
 
-
 	public ObjetoDataSource(Context context) {
-		Log.w("Creando...", "Creando bd");
 		dbHelper = new MySQLiteHelper(context);
 	}
 
 	public void open() throws SQLException {
 		database = dbHelper.getWritableDatabase();
+		database.execSQL(dbHelper.sqlenableForeingKeys);
 		database.execSQL(dbHelper.getSqlCreateObjeto());
 	}
 
@@ -40,6 +40,16 @@ public class ObjetoDataSource {
 		dbHelper.close();
 	}
 
+	public Objeto createObjeto(Objeto objeto) {
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, objeto.getNombre());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, objeto.getKeypoints());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, objeto.getDescriptores());
+
+		objeto.setId((int) database.insert(MySQLiteHelper.TABLE_OBJETO, null, values));
+		return objeto;
+	}
+	
 	public Objeto createObjeto(String nombre, String keypoints,
 			String descriptores) {
 
@@ -50,29 +60,51 @@ public class ObjetoDataSource {
 
 		long insertId = database.insert(MySQLiteHelper.TABLE_OBJETO, null,
 				values); // Se inserta un objeto y se deuelve su id
-		Log.w("Creando...", "Objeto " + nombre + " creado con id "+ insertId);
+		Log.w("Creando...", "Objeto " + nombre + " creado con id " + insertId);
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_OBJETO,
 
-		allColumns, MySQLiteHelper.COLUMN_OBJETO_ID + " = " + insertId, null, null,
-				null, null);// devuelve el objeto que se acaba de insertar
-		
+		allColumns, MySQLiteHelper.COLUMN_OBJETO_ID + " = " + insertId, null,
+				null, null, null);// devuelve el objeto que se acaba de insertar
 
 		cursor.moveToFirst();
 		Objeto newObjeto = cursorToObjeto(cursor);
 		cursor.close();
 		return newObjeto;
 	}
+	
+	public boolean modificaObjeto(int id, String nombre, String keypoints,
+			String descriptores) {
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, nombre);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, keypoints);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, descriptores);
 
-	public void deleteObjeto(Objeto objeto) {
-		long id = objeto.getId();
-		Log.w("Deleting...", "Objeto deleted with id: " + id);
-		database.delete(MySQLiteHelper.TABLE_OBJETO, MySQLiteHelper.COLUMN_OBJETO_ID
-				+ " = " + id, null);
+		return database.update(MySQLiteHelper.TABLE_OBJETO, values,
+				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + id, null) > 0;
 	}
 	
-	public void deleteTableObjeto() {
+	public boolean modificaObjeto(Objeto objeto) {
+		ContentValues values = new ContentValues();
+		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, objeto.getNombre());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, objeto.getKeypoints());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, objeto.getDescriptores());
+
+		return database.update(MySQLiteHelper.TABLE_OBJETO, values,
+				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + objeto.getId(), null) > 0;
+	}
+
+	public boolean eliminaObjeto(int id) {
+		return database.delete(MySQLiteHelper.TABLE_OBJETO,
+				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + id, null) > 0;
+	}
+
+	public boolean eliminaTodosObjetos() {
+		return database.delete(MySQLiteHelper.TABLE_OBJETO, null, null) > 0;
+	}
+
+	public void dropTableObjeto() {
 		Log.w("Deleting...", "Borrando tabla objetos");
-		database.execSQL("DROP TABLE IF EXISTS " + MySQLiteHelper.TABLE_OBJETO);
+		database.execSQL(dbHelper.getSqlDropObjeto());
 		database.execSQL(dbHelper.getSqlCreateObjeto());
 	}
 
@@ -82,47 +114,47 @@ public class ObjetoDataSource {
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_OBJETO, allColumns,
 				null, null, null, null, null);
 
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Objeto objeto = cursorToObjeto(cursor);
-			objetos.add(objeto);
-			cursor.moveToNext();
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				Objeto objeto = cursorToObjeto(cursor);
+				objetos.add(objeto);
+				cursor.moveToNext();
+			}
+			cursor.close();
 		}
-		// make sure to close the cursor
-		cursor.close();
 		return objetos;
 	}
 
 	public Objeto getObjeto(long id) {
-
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_OBJETO, allColumns,
-				MySQLiteHelper.COLUMN_OBJETO_ID + " = '" + id + "'", null,
-				null, null, null);// devuelve el objeto que se pide
+				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + id, null, null, null,
+				null);
 
-		Objeto objeto = new Objeto();
-		if (cursor != null) {
+		if (cursor != null && cursor.getCount() > 0) {
+			Objeto objeto = new Objeto();
 			cursor.moveToFirst();
 			objeto = cursorToObjeto(cursor);
-			// make sure to close the cursor
 			cursor.close();
-		}
-		return objeto;
+			return objeto;
+		} else
+			return null;
 	}
-	
+
 	public Objeto getObjeto(String nombre) {
 
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_OBJETO, allColumns,
-				MySQLiteHelper.COLUMN_OBJETO_NOMBRE + " = '" + nombre+ "'", null,
-				null, null, null);// devuelve el objeto que se pide
+				MySQLiteHelper.COLUMN_OBJETO_NOMBRE + " = '" + nombre + "'",
+				null, null, null, null);// devuelve el objeto que se pide
 
-		Objeto objeto = new Objeto();
-		if (cursor != null) {
+		if (cursor != null && cursor.getCount() > 0) {
+			Objeto objeto = new Objeto();
 			cursor.moveToFirst();
 			objeto = cursorToObjeto(cursor);
-			// make sure to close the cursor
 			cursor.close();
-		}
-		return objeto;
+			return objeto;
+		} else
+			return null;
 	}
 
 	private Objeto cursorToObjeto(Cursor cursor) {
