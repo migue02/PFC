@@ -19,12 +19,16 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String COLUMN_OBJETO_NOMBRE = "nombre";
 	public static final String COLUMN_OBJETO_KEYPOINTS = "keypoints";
 	public static final String COLUMN_OBJETO_DESPCRIPTORES = "descriptores";
+	public static final String COLUMN_OBJETO_COLS = "cols";
+	public static final String COLUMN_OBJETO_ROWS = "rows";
 
 	private String sqlCreateObjeto = "create table if not exists " + TABLE_OBJETO + "(" 
 			+ COLUMN_OBJETO_ID + " integer primary key autoincrement, " 
 			+ COLUMN_OBJETO_NOMBRE + " varchar, " 
 			+ COLUMN_OBJETO_KEYPOINTS + " text, "
-			+ COLUMN_OBJETO_DESPCRIPTORES + " text)";
+			+ COLUMN_OBJETO_DESPCRIPTORES + " text, "
+			+ COLUMN_OBJETO_COLS + " integer, "
+			+ COLUMN_OBJETO_ROWS + " integer)";
 
 	protected static String TABLE_ALUMNO = "Alumno";
 	public static final String COLUMN_ALUMNO_ID = "_id";
@@ -88,7 +92,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			+ COLUMN_RESULTADO_ID_ALUMNO + " integer "
 			+ "REFERENCES "+TABLE_ALUMNO+"("+COLUMN_ALUMNO_ID+") ON DELETE CASCADE, "//ON UPDATE CASCADE no necesario ya que el id no se va a modificar nunca
 			+ COLUMN_RESULTADO_ID_EJERCICIO + " integer "
-			+ "REFERENCES "+TABLE_EJERCICIO+"("+COLUMN_EJERCICIO_ID+") ON DELETE CASCADE, "//ON UPDATE CASCADE
+			+ "REFERENCES "+TABLE_SERIE_EJERCICIOS+"("+COLUMN_EJERCICIO_ID+") ON DELETE CASCADE, "//ON UPDATE CASCADE
 			+ COLUMN_RESULTADO_FECHA + " date, " 
 			+ COLUMN_RESULTADO_DURACION + " integer, " 
 			+ COLUMN_RESULTADO_NUM_OBJETOS + " integer, "

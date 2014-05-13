@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.List;
@@ -13,13 +14,16 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
+import pfc.bd.AlumnoDataSource;
 import pfc.bd.EjercicioDataSource;
 import pfc.bd.MySQLiteHelper;
 import pfc.bd.ObjetoDataSource;
 import pfc.bd.ResultadoDataSource;
 import pfc.bd.SerieEjerciciosDataSource;
+import pfc.obj.Alumno;
 import pfc.obj.Ejercicio;
 import pfc.obj.Objeto;
+import pfc.obj.Resultado;
 import pfc.obj.SerieEjercicios;
 import android.app.Activity;
 import android.content.Intent;
@@ -41,7 +45,8 @@ public class MainActivity extends Activity {
 	private EjercicioDataSource datasourceEjercicio;
 	private SerieEjerciciosDataSource datasourceSerieEjercicios;
 	private ResultadoDataSource datasourceResultado;
-
+	private AlumnoDataSource datasourceAlumno;
+	
 	// Buttons
 	private Button comenzarRec;
 	private Button btn1;
@@ -71,6 +76,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
+		
+		
 
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -105,7 +112,7 @@ public class MainActivity extends Activity {
 		ArrayAdapter<SerieEjercicios> adapterSeries = new ArrayAdapter<SerieEjercicios>(this,
 				android.R.layout.simple_list_item_1, lista_series);
 		
-		lv = (ListView)findViewById(R.id.listaEjercicios);
+		lv = (ListView)findViewById(R.id.listaObjetos);
 		lv.setAdapter(adapterSeries);
 //		
 //		datasourceEjercicio = new EjercicioDataSource(this);
@@ -122,13 +129,38 @@ public class MainActivity extends Activity {
 //		
 //		lv = (ListView)findViewById(R.id.listaEjercicios);
 //		lv.setAdapter(adapterEjercicios);
+		
+		datasourceAlumno = new AlumnoDataSource(this);
+		datasourceAlumno.open();
+		
+		//Alumno a = datasourceAlumno.createAlumno(Utils.nombreRandom(),
+		//		Utils.apellidoRandom() + " " + Utils.apellidoRandom(), Utils.fechaRandom(),
+		//		Utils.sexoRandom(), "");
 
 		datasourceResultado = new ResultadoDataSource(this);
 		datasourceResultado.open();
-		
-		
+		//datasourceResultado.createResultado(1,1,10,5,new Date(),10,0,0);
+		//datasourceResultado.createResultado(1,1,5,3,new Date(),10,0,0);
+		//datasourceResultado.createResultado(1,1,1,1,new Date(),10,0,0);
+				
 		comenzarRec = (Button) findViewById(R.id.btnComenzar);
 		btn1 = (Button) findViewById(R.id.button1);
+		
+		List<Resultado> lista_resultados = datasourceResultado.getAllResultados();
+		
+		ArrayAdapter<Resultado> adapterResultados = new ArrayAdapter<Resultado>(this,
+				android.R.layout.simple_list_item_1, lista_resultados);
+		
+		lv = (ListView)findViewById(R.id.listaEjercicios);
+		lv.setAdapter(adapterResultados);
+		
+		List<Resultado> lista_ejercicios = datasourceResultado.getResultadosAlumno(datasourceAlumno.getAlumnos(1));
+		
+		ArrayAdapter<Resultado> adapterEjercicios = new ArrayAdapter<Resultado>(this,
+				android.R.layout.simple_list_item_1, lista_ejercicios);
+		
+		lv = (ListView)findViewById(R.id.listaAlumnos);
+		lv.setAdapter(adapterEjercicios);
 
 
 		/*
@@ -148,7 +180,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Log.i(TAG, "called ReconocimientoActivity");
 				Intent myIntent = new Intent(MainActivity.this,
-						Reconocimiento.class);
+						ReconocimientoObjeto.class);
 				finish();
 				startActivity(myIntent);
 
@@ -157,6 +189,7 @@ public class MainActivity extends Activity {
 
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				datasourceObjeto.eliminaTodosObjetos();
 				Intent myIntent = new Intent(MainActivity.this,
 						Alumnos.class);
 				finish();

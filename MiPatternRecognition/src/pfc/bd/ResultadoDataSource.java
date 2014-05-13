@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import pfc.obj.Alumno;
 import pfc.obj.Resultado;
 import android.content.ContentValues;
 import android.content.Context;
@@ -55,7 +56,8 @@ public class ResultadoDataSource {
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_NUM_OBJETOS, resultado.getNumeroObjetosReconocer());
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_PUNTUACION, resultado.getPuntuacion());
 		
-		resultado.setIdResultado((int) database.insert(MySQLiteHelper.TABLE_RESULTADO, null, values));
+		long id= database.insert(MySQLiteHelper.TABLE_RESULTADO, null, values);
+		resultado.setIdResultado((int)id);
 		return resultado;
 	}
 	
@@ -162,6 +164,36 @@ public class ResultadoDataSource {
 		return null;
 	}
 
+
+	public List<Resultado> getResultadosAlumno(Alumno alumno){
+		
+		List<Resultado> resultados = new ArrayList<Resultado>();
+		
+		
+		String query="SELECT R."+MySQLiteHelper.COLUMN_RESULTADO_ID+", "+MySQLiteHelper.COLUMN_RESULTADO_ID_ALUMNO+", "+MySQLiteHelper.COLUMN_RESULTADO_ID_EJERCICIO+
+				", sum("+MySQLiteHelper.COLUMN_RESULTADO_ACIERTOS+"), sum("+MySQLiteHelper.COLUMN_RESULTADO_FALLOS+"),"+
+				" "+MySQLiteHelper.COLUMN_RESULTADO_FECHA+", sum("+MySQLiteHelper.COLUMN_RESULTADO_PUNTUACION+"), sum("+MySQLiteHelper.COLUMN_RESULTADO_DURACION+"),"+
+				" sum("+MySQLiteHelper.COLUMN_RESULTADO_NUM_OBJETOS+")"+
+				" FROM "+MySQLiteHelper.TABLE_RESULTADO+" R, "+MySQLiteHelper.TABLE_ALUMNO+" A"+
+				" WHERE R."+MySQLiteHelper.COLUMN_RESULTADO_ID_ALUMNO+" = A."+MySQLiteHelper.COLUMN_ALUMNO_ID+" AND "+MySQLiteHelper.COLUMN_RESULTADO_ID_EJERCICIO+" = "+alumno.getIdAlumno()+
+				" AND "+MySQLiteHelper.COLUMN_RESULTADO_FECHA+" > (DATETIME('NOW') - 7)"+
+				" GROUP BY FECHAREALIZACION, R.IDALUMNO";
+		Cursor cursor = database.rawQuery(query, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				Resultado resultado = cursorToResultado(cursor);
+				resultados.add(resultado);
+				cursor.moveToNext();
+			}
+			cursor.close();
+		}
+		
+		return resultados;
+		
+	}
+	
 	private Resultado cursorToResultado(Cursor cursor) {
 		Resultado resultado = new Resultado();
 		resultado.setIdResultado(cursor.getInt(0));

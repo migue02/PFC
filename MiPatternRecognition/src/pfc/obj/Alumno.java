@@ -16,10 +16,10 @@ public class Alumno {
 	
 	public Alumno(){
 		idAlumno = -1;
-		nombre = "Nombre";
-		apellidos = "Apellidos";
+		nombre = "";
+		apellidos = "";
 		fecha_nac = new Date();//asigna la fecha actual
-		observaciones = "Ninguna";
+		observaciones = "";
 		sexo = Sexo.NoDef;
 	}
 	
