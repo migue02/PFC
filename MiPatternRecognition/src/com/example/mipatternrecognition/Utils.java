@@ -143,13 +143,13 @@ public class Utils {
 
 				JsonObject obj = new JsonObject();
 
-				obj.addProperty("class_id", kp.class_id);
+				//obj.addProperty("class_id", kp.class_id);
 				obj.addProperty("x", kp.pt.x);
 				obj.addProperty("y", kp.pt.y);
 				obj.addProperty("size", kp.size);
-				obj.addProperty("angle", kp.angle);
-				obj.addProperty("octave", kp.octave);
-				obj.addProperty("response", kp.response);
+				//obj.addProperty("angle", kp.angle);
+				//obj.addProperty("octave", kp.octave);
+				//obj.addProperty("response", kp.response);
 
 				jsonArr.add(obj);
 			}
@@ -180,11 +180,11 @@ public class Utils {
 					.getAsDouble());
 
 			kp.pt = point;
-			kp.class_id = obj.get("class_id").getAsInt();
+			//kp.class_id = obj.get("class_id").getAsInt();
 			kp.size = obj.get("size").getAsFloat();
-			kp.angle = obj.get("angle").getAsFloat();
-			kp.octave = obj.get("octave").getAsInt();
-			kp.response = obj.get("response").getAsFloat();
+			//kp.angle = obj.get("angle").getAsFloat();
+			//kp.octave = obj.get("octave").getAsInt();
+			//kp.response = obj.get("response").getAsFloat();
 
 			kpArray[i] = kp;
 		}

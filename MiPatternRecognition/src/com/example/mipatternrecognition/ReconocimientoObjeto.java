@@ -1,5 +1,8 @@
 package com.example.mipatternrecognition;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -18,6 +21,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -27,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class ReconocimientoObjeto extends Activity implements CvCameraViewListener2 {
@@ -34,15 +40,21 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	private static final String TAG = "ReconocimientoObjeto::Activity";
 	
 	private CameraBridgeViewBase mOpenCvCameraView;
-	private boolean buscandoObjeto;
-	private boolean patronAdquirido = false;
-	private boolean encontrado = false;
+	private boolean buscandoObjeto = false;
+	private int nObjeto = -1;
 	private Mat mGray;
 	private Mat mRgba;
+	private Mat aux;
 	private ObjetoDataSource datasource;
 	private MatOfKeyPoint keypoints_obj = new MatOfKeyPoint();
 	private Mat descriptores_obj = new Mat();
 	private KeyPoint[] listaKP_obj;
+	private ArrayList<Objeto> objetos;
+	private ArrayList<Mat> matsDescriptores; 
+	private ArrayList<MatOfKeyPoint> matsKeyPoints;
+	private int[] colsArray;
+	private int[] rowsArray;
+	private String nombre;
 	
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -76,103 +88,145 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		datasource = new ObjetoDataSource(this);
 		datasource.open();
+		
+		objetos = datasource.getAllObjetos();
+		rellenar();
+		
+	}
+	
+	private void rellenar(){
+		int inicio=0;
+		if (colsArray == null){
+			colsArray = new int[objetos.size()];
+			rowsArray = new int[objetos.size()];
+			matsDescriptores = new ArrayList<Mat>(objetos.size());
+			matsKeyPoints = new ArrayList<MatOfKeyPoint>(objetos.size());
+		}else{
+			inicio=objetos.size()-1;
+			colsArray = Arrays.copyOf(colsArray, objetos.size());
+			rowsArray = Arrays.copyOf(rowsArray, objetos.size());
+		}
+		for(int i=inicio;i<objetos.size(); i++){
+			colsArray[i] = objetos.get(i).getCols();
+			rowsArray[i] = objetos.get(i).getRows();
+			
+			Mat tempaddr1=Utils.matFromJson(objetos.get(i).getDescriptores());
+            matsDescriptores.add(tempaddr1);
+			
+            MatOfKeyPoint tempaddr2=Utils.keypointsFromJson(objetos.get(i).getKeypoints());
+    		matsKeyPoints.add(tempaddr2);
+		}
+		
+        long[] tempobjadr1 = new long[matsDescriptores.size()]; 
+        long[] tempobjadr2 = new long[matsKeyPoints.size()]; 
+        int[] cols = new int[matsKeyPoints.size()];
+        int[] rows = new int[matsKeyPoints.size()];
+        for (int i=0;i<matsDescriptores.size();i++)
+        {
+            Mat tempaddr1=matsDescriptores.get(i);
+            tempobjadr1[i]= tempaddr1.getNativeObjAddr();
+            
+            MatOfKeyPoint tempaddr2=matsKeyPoints.get(i);
+            tempobjadr2[i]= tempaddr2.getNativeObjAddr();
+            
+            cols[i] = objetos.get(i).getCols();
+            rows[i] = objetos.get(i).getRows();
+        }
 
+		TrainDescriptors(tempobjadr1, tempobjadr2, cols, rows);
+	}
+	
+	public void onReconocerClick(View v){
+		buscandoObjeto=true;
+		nObjeto=-1;
 	}
 	
 	public void onCancelarClick(View v){
-		Intent myIntent = new Intent(ReconocimientoObjeto.this,
-				Reconocimiento.class);
-		finish();
-		startActivity(myIntent);
+		if (!buscandoObjeto){
+			Intent myIntent = new Intent(ReconocimientoObjeto.this,
+					Reconocimiento.class);
+			finish();
+			startActivity(myIntent);
+		}else{
+			buscandoObjeto=false;
+			nObjeto=-1;
+		}
 	}
 	
 	public void onCapturarClick(View v){
-		patronAdquirido = true;
-		listaKP_obj = FindFeatures(mGray.getNativeObjAddr(),
-				mRgba.getNativeObjAddr(), descriptores_obj.getNativeObjAddr());
-		final Dialog dialog = new Dialog(ReconocimientoObjeto.this);
-		dialog.setContentView(R.layout.activity_dialog_objeto);
-		dialog.setTitle("¿Desea guardar este objeto?");
-
-		// set the custom dialog components - image and button
-		// convert to bitmap:
-		Bitmap bm = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),Bitmap.Config.ARGB_8888);
-        org.opencv.android.Utils.matToBitmap(mRgba, bm);
-		ImageView image = (ImageView) dialog.findViewById(R.id.imageObjeto);
-		image.setImageBitmap(bm);
-		
-		final EditText edtNombre = (EditText) findViewById(R.id.edtNombre);
-		
-		Button btnAceptar = (Button) dialog.findViewById(R.id.btnAceptar);
-		// if button is clicked, close the custom dialog
-		btnAceptar.setOnClickListener(new View.OnClickListener() {
+		aux = mRgba.clone();
+		FindFeatures(mGray.getNativeObjAddr(),
+				aux.getNativeObjAddr(), descriptores_obj.getNativeObjAddr(), keypoints_obj.getNativeObjAddr());
+		if (!keypoints_obj.empty() || !descriptores_obj.empty()) {
+			final Dialog dialog = new Dialog(ReconocimientoObjeto.this);
+			dialog.setContentView(R.layout.activity_dialog_objeto);
+			dialog.setTitle("¿Desea guardar este objeto?");
+	
+			// set the custom dialog components - image and button
+			// convert to bitmap:
+			Bitmap bm = Bitmap.createBitmap(aux.cols(), aux.rows(),Bitmap.Config.ARGB_8888);
+	        org.opencv.android.Utils.matToBitmap(aux, bm);
+			ImageView image = (ImageView) dialog.findViewById(R.id.imageObjeto);
+			image.setImageBitmap(bm);			
 			
-			@Override
-			public void onClick(View v) {
-				patronAdquirido = false;
-				String keyString, desString;
-				
-				
-				keypoints_obj = new MatOfKeyPoint(listaKP_obj);
-				keyString = Utils.keypointsToJson(keypoints_obj);
-				desString = Utils.matToJson(descriptores_obj);
-				Objeto obj = datasource.createObjeto("Objeto"
-						.toString(), keyString, desString);
-				//id = obj.getId();
-				Log.w("Tag", " Size "+listaKP_obj.length+ "\n" + keyString);
-				descriptores_obj.release();
-				keypoints_obj.release();
-				dialog.dismiss();
-			}
-		});
-		
-		Button btnCancelar = (Button) dialog.findViewById(R.id.btnCancelar);
-		// if button is clicked, close the custom dialog
-		btnCancelar.setOnClickListener(new View.OnClickListener() {
+			final EditText edtNombre = (EditText) dialog.findViewById(R.id.edtNombre);
 			
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-				descriptores_obj.release();
-				keypoints_obj.release();
-				patronAdquirido = true;
-			}
-		});		
-		dialog.show();
+			Button btnAceptar = (Button) dialog.findViewById(R.id.btnAceptar);
+			// if button is clicked, close the custom dialog
+			btnAceptar.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					String keyString, desString;				
+					//keypoints_obj = new MatOfKeyPoint(listaKP_obj);
+					keyString = Utils.keypointsToJson(keypoints_obj);
+					desString = Utils.matToJson(descriptores_obj);
+					Objeto obj=datasource.createObjeto(edtNombre.getText().toString(), keyString, desString, aux.cols(), aux.rows());
+					objetos.add(obj);
+					rellenar();
+					//id = obj.getId();
+					descriptores_obj.release();
+					keypoints_obj.release();
+					dialog.dismiss();
+					aux.release();
+				}
+			});
+			
+			Button btnCancelar = (Button) dialog.findViewById(R.id.btnCancelar);
+			// if button is clicked, close the custom dialog
+			btnCancelar.setOnClickListener(new View.OnClickListener() {				
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+					descriptores_obj.release();
+					keypoints_obj.release();
+					objetos.clear();
+					aux.release();
+				}
+			});		
+			dialog.show();
+		}else
+			Toast.makeText(this, "Es necesario capturar de nuevo el objeto", Toast.LENGTH_SHORT).show();
 	}
 	
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		if (patronAdquirido) {
+		if (!buscandoObjeto || (buscandoObjeto && nObjeto == -1)){
 			mRgba = inputFrame.rgba();
 			mGray = inputFrame.gray();
-			
-			
- 
-			
-		} else if (buscandoObjeto) {
-			mRgba = inputFrame.rgba();
-			mGray = inputFrame.gray();
-			/*Objeto obj2 = datasource.getObjeto(id);
-				
-			for (int i=1;i<NumObjetos;i++){						
-				obj2 = datasource.getObjeto(i);
-				descriptores_obj = Utils.matFromJson(obj2.getDescriptores());
-				keypoints_obj = Utils.keypointsFromJson(obj2
-						.getKeypoints());
-				
-				encontrado = FindObject(mGray.getNativeObjAddr(),
-						mRgba.getNativeObjAddr(), keypoints_obj.toArray(),
-						descriptores_obj.getNativeObjAddr());
-				
-				Log.w("Tag",obj2.getKeypoints());
-				
-				descriptores_obj.release();
-				keypoints_obj.release();
-			}*/
-		} else
-			mRgba = inputFrame.rgba();
-		if (encontrado)
-			buscandoObjeto = false;
+
+			if (buscandoObjeto) {
+					
+				FindObjects(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+				if (nObjeto!=-1){
+					nombre=objetos.get(nObjeto).getNombre();
+					ReconocimientoObjeto.this.runOnUiThread(new Runnable() {
+					    public void run() {
+					    	Toast.makeText(getApplicationContext(), "Encontrado el objeto "+nombre, Toast.LENGTH_LONG).show();
+					    }
+					});
+				}
+			}
+		}
 		return mRgba;
 	}
 	
@@ -197,11 +251,16 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 		super.onDestroy();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
+		colsArray = null;
+		rowsArray = null;
+		//matsDescriptores = null;
+		//matsKeyPoints = null;
 	}
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
+		aux = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
 	}
 	
@@ -219,7 +278,7 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
 			Log.i(TAG, "called MainActivity");
 			Intent myIntent = new Intent(ReconocimientoObjeto.this,
-					Reconocimiento.class);
+					MainActivity.class);
 			finish();
 			startActivity(myIntent);
 			return true;
@@ -236,16 +295,25 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 		return true;
 	}
 	
-	public native KeyPoint[] FindFeatures(long matAddrGr, long matAddrRgba,
-			long matAddrDescriptores);
-
-	public native boolean FindObject(long matAddrGr, long matAddrRgba,
-			KeyPoint[] matAddrKeypoints, long matAddrDescriptores);
+	public native void FindFeatures(long matAddrGr, long matAddrRgba,
+			long matAddrDescriptores, long matAddrKeyPoints);
+	public native int FindObjects(long matAddrGray, long matAddrRgba);
 	
-	public native boolean FindFeatures2(long matAddrGr, long matAddrRgba,
-			long matAddrDescriptores);
-
-	public native boolean FindObject2(long matAddrGr, long matAddrRgba,
-			long matAddrDescriptores);
+	public native int TrainDescriptors(long[] descriptors, long[] keyPoints, int[] cols, int[] rows);
+	
+//	public native int FindObjects(long matAddrGray, long matAddrRgba, long[] matsKeyPoints,
+//			long[] matsDescriptores, int[] colsArray, int[] rowsArray, boolean esPrimeraVez);
+	
+//	public native void/*KeyPoint[]*/ FindFeatures(long matAddrGr, long matAddrRgba,
+//			long matAddrDescriptores, long matAddrKeyPoints);
+//
+//	public native boolean FindObject(long matAddrGr, long matAddrRgba,
+//			long matAddrKeyPoints/*KeyPoint[] matAddrKeypoints*/, long matAddrDescriptores, int cols, int rows);
+//	
+//	public native boolean FindFeatures2(long matAddrGr, long matAddrRgba,
+//			long matAddrDescriptores);
+//
+//	public native boolean FindObject2(long matAddrGr, long matAddrRgba,
+//			long matAddrDescriptores);
 
 }

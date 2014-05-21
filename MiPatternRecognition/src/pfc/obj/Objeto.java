@@ -5,12 +5,26 @@ public class Objeto {
 	private String nombre;
 	private String keypoints;
 	private String descriptores;
+	private int cols;
+	private int rows;
 
 	public Objeto() {
 		id=-1;
 		nombre="";
 		keypoints="";
 		descriptores="";
+		cols=0;
+		rows=0;
+	}
+
+	public Objeto(long id, String nombre, String keypoints,
+			String descriptores, int cols, int rows) {
+		this.id = id;
+		this.nombre = nombre;
+		this.keypoints = keypoints;
+		this.descriptores = descriptores;
+		this.cols = cols;
+		this.rows = rows;
 	}
 
 	public long getId() {
@@ -43,6 +57,22 @@ public class Objeto {
 
 	public void setDescriptores(String descriptores) {
 		this.descriptores = descriptores;
+	}
+	
+	public int getCols() {
+		return cols;
+	}
+
+	public void setCols(int cols) {
+		this.cols = cols;
+	}
+
+	public int getRows() {
+		return rows;
+	}
+
+	public void setRows(int rows) {
+		this.rows = rows;
 	}
 
 	// Will be used by the ArrayAdapter in the ListView

@@ -184,7 +184,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 	}
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		if (patronAdquirido) {
+		/*if (patronAdquirido) {
 
 			mRgba = inputFrame.rgba();
 			mGray = inputFrame.gray();
@@ -199,7 +199,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 				keyString = Utils.keypointsToJson(keypoints_obj);
 				desString = Utils.matToJson(descriptores_obj);
 				Objeto obj = datasource.createObjeto(editNombre.getText()
-						.toString(), keyString, desString);
+						.toString(), keyString, desString, mGray.cols(), mGray.rows());
 				id = obj.getId();
 				Log.w("Tag", " Size "+listaKP_obj.length+ "\n" + keyString);
 				descriptores_obj.release();
@@ -209,7 +209,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 						descriptores_obj.getNativeObjAddr());
 				desString = Utils.matToJson(descriptores_obj);
 				Objeto obj = datasource.createObjeto(editNombre.getText()
-						.toString(), "", desString);
+						.toString(), "", desString, mGray.cols(), mGray.rows());
 				id = obj.getId();
 				descriptores_obj.release();
 			}
@@ -255,7 +255,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		} else
 			mRgba = inputFrame.rgba();
 		if (encontrado)
-			buscandoObjeto = false;
+			buscandoObjeto = false;*/
 		return mRgba;
 	}
 
@@ -283,7 +283,7 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 		return super.onKeyDown(keyCode, event);
 	}
 
-	public native KeyPoint[] FindFeatures(long matAddrGr, long matAddrRgba,
+	/*public native KeyPoint[] FindFeatures(long matAddrGr, long matAddrRgba,
 			long matAddrDescriptores);
 
 	public native boolean FindObject(long matAddrGr, long matAddrRgba,
@@ -294,5 +294,5 @@ public class Reconocimiento extends Activity implements CvCameraViewListener2 {
 
 	public native boolean FindObject2(long matAddrGr, long matAddrRgba,
 			long matAddrDescriptores);
-	
+	*/
 }

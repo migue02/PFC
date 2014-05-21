@@ -47,7 +47,7 @@ public class AlumnoDataSource {
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, alumno.getNombre());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, alumno.getApellidos());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
-				new SimpleDateFormat("dd/MM/yyyy").format(alumno.getFecha_nac_AsDate()));
+				new SimpleDateFormat("yyyy-MM-dd").format(alumno.getFecha_nac_AsDate()));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, alumno.getSexo().toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, alumno.getObservaciones());
 
@@ -61,7 +61,7 @@ public class AlumnoDataSource {
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
-				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
+				new SimpleDateFormat("yyyy-MM-dd").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
 
@@ -82,7 +82,7 @@ public class AlumnoDataSource {
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, alumno.getNombre());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, alumno.getApellidos());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
-				new SimpleDateFormat("dd/MM/yyyy").format(alumno.getFecha_nac_AsDate()));
+				new SimpleDateFormat("yyyy-MM-dd").format(alumno.getFecha_nac_AsDate()));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, alumno.getSexo().toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, alumno.getObservaciones());
 
@@ -97,7 +97,7 @@ public class AlumnoDataSource {
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_APELLIDOS, apellidos);
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_FECHA_NAC,
-				new SimpleDateFormat("dd/MM/yyyy").format(fecha_nac));
+				new SimpleDateFormat("yyyy-MM-dd").format(fecha_nac));
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_SEXO, sexo.toString());
 		values.put(MySQLiteHelper.COLUMN_ALUMNO_OBSERVACIONES, observaciones);
 
@@ -156,7 +156,7 @@ public class AlumnoDataSource {
 		alumno.setNombre(cursor.getString(1));
 		alumno.setApellidos(cursor.getString(2));
 		try {
-			alumno.setFecha_nac(new SimpleDateFormat("dd/MM/yyyy").parse(cursor
+			alumno.setFecha_nac(new SimpleDateFormat("yyyy-MM-dd").parse(cursor
 					.getString(3)));
 		} catch (ParseException e) {
 			Log.e("ERROR_FECHA", "Error al obtener la fecha");

@@ -23,6 +23,14 @@
             android:text="Cancelar" />
 
         <Button
+            android:id="@+id/btnReconocer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onReconocerClick"
+            android:text="Reconocer" />
+
+        <Button
             android:id="@+id/btnCapturar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

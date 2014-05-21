@@ -24,7 +24,9 @@ public class ObjetoDataSource {
 	private String[] allColumns = { MySQLiteHelper.COLUMN_OBJETO_ID,
 			MySQLiteHelper.COLUMN_OBJETO_NOMBRE,
 			MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS,
-			MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES };
+			MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES,
+			MySQLiteHelper.COLUMN_OBJETO_COLS,
+			MySQLiteHelper.COLUMN_OBJETO_ROWS};
 
 	public ObjetoDataSource(Context context) {
 		dbHelper = new MySQLiteHelper(context);
@@ -45,18 +47,22 @@ public class ObjetoDataSource {
 		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, objeto.getNombre());
 		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, objeto.getKeypoints());
 		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, objeto.getDescriptores());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_COLS, objeto.getCols());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_ROWS, objeto.getRows());
 
 		objeto.setId((int) database.insert(MySQLiteHelper.TABLE_OBJETO, null, values));
 		return objeto;
 	}
 	
 	public Objeto createObjeto(String nombre, String keypoints,
-			String descriptores) {
+			String descriptores, int cols, int rows) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, keypoints);
 		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, descriptores);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_COLS, cols);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_ROWS, rows);
 
 		long insertId = database.insert(MySQLiteHelper.TABLE_OBJETO, null,
 				values); // Se inserta un objeto y se deuelve su id
@@ -73,11 +79,14 @@ public class ObjetoDataSource {
 	}
 	
 	public boolean modificaObjeto(int id, String nombre, String keypoints,
-			String descriptores) {
+			String descriptores, int cols, int rows) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, keypoints);
 		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, descriptores);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_COLS, cols);
+		values.put(MySQLiteHelper.COLUMN_OBJETO_ROWS, rows);
+		
 
 		return database.update(MySQLiteHelper.TABLE_OBJETO, values,
 				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + id, null) > 0;
@@ -88,7 +97,9 @@ public class ObjetoDataSource {
 		values.put(MySQLiteHelper.COLUMN_OBJETO_NOMBRE, objeto.getNombre());
 		values.put(MySQLiteHelper.COLUMN_OBJETO_KEYPOINTS, objeto.getKeypoints());
 		values.put(MySQLiteHelper.COLUMN_OBJETO_DESPCRIPTORES, objeto.getDescriptores());
-
+		values.put(MySQLiteHelper.COLUMN_OBJETO_COLS, objeto.getCols());
+		values.put(MySQLiteHelper.COLUMN_OBJETO_ROWS, objeto.getRows());
+		
 		return database.update(MySQLiteHelper.TABLE_OBJETO, values,
 				MySQLiteHelper.COLUMN_OBJETO_ID + " = " + objeto.getId(), null) > 0;
 	}
@@ -108,8 +119,8 @@ public class ObjetoDataSource {
 		database.execSQL(dbHelper.getSqlCreateObjeto());
 	}
 
-	public List<Objeto> getAllObjetos() {
-		List<Objeto> objetos = new ArrayList<Objeto>();
+	public ArrayList<Objeto> getAllObjetos() {
+		ArrayList<Objeto> objetos = new ArrayList<Objeto>();
 		Log.w("Obteniendo...", "Obteniendo todos los objetos...");
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_OBJETO, allColumns,
 				null, null, null, null, null);
@@ -163,6 +174,8 @@ public class ObjetoDataSource {
 		objeto.setNombre(cursor.getString(1));
 		objeto.setKeypoints(cursor.getString(2));
 		objeto.setDescriptores(cursor.getString(3));
+		objeto.setCols(cursor.getInt(4));
+		objeto.setRows(cursor.getInt(5));
 		return objeto;
 	}
 

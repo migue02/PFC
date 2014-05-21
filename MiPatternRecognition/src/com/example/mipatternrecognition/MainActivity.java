@@ -154,14 +154,14 @@ public class MainActivity extends Activity {
 		lv = (ListView)findViewById(R.id.listaEjercicios);
 		lv.setAdapter(adapterResultados);
 		
-		List<Resultado> lista_ejercicios = datasourceResultado.getResultadosAlumno(datasourceAlumno.getAlumnos(1));
+		/*List<Resultado> lista_ejercicios = datasourceResultado.getResultadosAlumno(datasourceAlumno.getAlumnos(1));
 		
 		ArrayAdapter<Resultado> adapterEjercicios = new ArrayAdapter<Resultado>(this,
 				android.R.layout.simple_list_item_1, lista_ejercicios);
 		
 		lv = (ListView)findViewById(R.id.listaAlumnos);
 		lv.setAdapter(adapterEjercicios);
-
+*/
 
 		/*
 		 * if (lista_objectos.size() > 0) { // make a mat and draw something Mat
