@@ -161,6 +161,7 @@ public class AlumnoDataSource {
 		} catch (ParseException e) {
 			Log.e("ERROR_FECHA", "Error al obtener la fecha");
 			e.printStackTrace();
+			alumno.setFecha_nac(new Date());
 		}
 		alumno.setSexo(Sexo.valueOf(cursor.getString(4)));
 		alumno.setObservaciones(cursor.getString(5));

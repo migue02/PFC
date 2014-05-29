@@ -4,38 +4,40 @@ import java.util.ArrayList;
 
 public class Ejercicio {
 	
-	private Integer idEjercicio;
+	private int idEjercicio;
 	private String nombre;
 	private ArrayList<Integer> objetos;
+	private double duracion;
 	
 	public Ejercicio() {
 		this.idEjercicio=-1;
 		this.nombre="";
 		this.objetos=new ArrayList<Integer>();
+		this.duracion=0.0;
 	}
 
-	public Ejercicio(Integer idEjercicio, String nombre, ArrayList<Integer> objetos) {
+	public Ejercicio(int idEjercicio, String nombre, ArrayList<Integer> objetos, double duracion) {
 		this.idEjercicio = idEjercicio;
 		this.nombre = nombre;
 		this.objetos = new ArrayList<Integer>(objetos);
+		this.duracion=0.0;
 	}
 	
-	public Ejercicio(Integer idEjercicio, String nombre, String objetos) {
+	public Ejercicio(int idEjercicio, String nombre, String objetos, double duracion) {
 		try {
 			this.idEjercicio = idEjercicio;
 			this.nombre = nombre;
 			this.objetos = com.example.mipatternrecognition.Utils.ArrayListFromJson(objetos);	
+			this.duracion=duracion;
 		}catch (Exception e){
-			this.idEjercicio=-1;
-			this.nombre="";
-			this.objetos=new ArrayList<Integer>();
+			new Ejercicio();
 		}
 	}
 
 	@Override
 	public String toString() {
 		return "Ejercicio [idEjercicio=" + idEjercicio + ", nombre=" + nombre
-				+ ", objetos=" + objetos + "]";
+				+ ", objetos=" + objetos + duracion + "]";
 	}
 
 	public Integer getIdEjercicio() {
@@ -61,5 +63,14 @@ public class Ejercicio {
 	public void setObjetos(ArrayList<Integer> objetos) {
 		this.objetos = objetos;
 	}	
+	
+	public double getDuracion() {
+		return duracion;
+	}
+
+	public void setDuracion(double duracion) {
+		this.duracion = duracion;
+	}
+
 
 }

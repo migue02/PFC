@@ -64,7 +64,7 @@ public class ResultadoDataSource {
 	}
 	
 	public Resultado createResultado(int idAlumno, int idEjercicio, int aciertos, int fallos,
-			Date fecha, int duracion, int numObjetos, double puntuacion) {
+			Date fecha, double duracion, int numObjetos, double puntuacion) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_ID_ALUMNO, idAlumno);
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_ID_EJERCICIO, idEjercicio);
@@ -104,7 +104,7 @@ public class ResultadoDataSource {
 	}
 
 	public boolean modificaResultado(int id, int idAlumno, int idEjercicio, int aciertos, int fallos,
-			Date fecha, int duracion, int numObjetos, double puntuacion) {
+			Date fecha, double duracion, int numObjetos, double puntuacion) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_ID_ALUMNO, idAlumno);
@@ -229,7 +229,7 @@ public class ResultadoDataSource {
 			e.printStackTrace();
 		}
 		resultado.setPuntuacion(cursor.getDouble(6));
-		resultado.setDuracion(cursor.getInt(7));
+		resultado.setDuracion(cursor.getDouble(7));
 		resultado.setNumeroObjetosReconocer(cursor.getInt(8));
 		return resultado;
 	}

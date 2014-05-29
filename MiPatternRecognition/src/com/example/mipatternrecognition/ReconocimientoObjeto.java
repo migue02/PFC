@@ -2,6 +2,9 @@ package com.example.mipatternrecognition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -21,16 +24,20 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +62,11 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	private int[] colsArray;
 	private int[] rowsArray;
 	private String nombre;
+	private EditText edtNombre;
+	private ImageView image;
+	private TextToSpeech ttobj;
+	private LinearLayout layoutBotones;
+	private SurfaceView surfaceView;
 	
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -84,13 +96,32 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_reconocimiento_objeto);
-		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.surface_view);
+		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.surfaceView);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		datasource = new ObjetoDataSource(this);
 		datasource.open();
 		
-		objetos = datasource.getAllObjetos();
-		rellenar();
+		/*layoutBotones = (LinearLayout) findViewById(R.id.layoutBotones);
+		surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+		LinearLayout.LayoutParams params = 
+				new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		
+		params.setMargins(0, surfaceView.getHeight() - layoutBotones.getHeight(), 0, 0);
+		
+		layoutBotones.setLayoutParams(params);*/
+
+		//objetos = datasource.getAllObjetos();
+		//rellenar();
+		
+		ttobj=new TextToSpeech(getApplicationContext(), 
+	      new TextToSpeech.OnInitListener() {
+	      @Override
+	      public void onInit(int status) {
+	         if(status != TextToSpeech.ERROR){
+	             ttobj.setLanguage(Locale.UK);
+	            }				
+	         }
+	      });
 		
 	}
 	
@@ -110,30 +141,30 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 			colsArray[i] = objetos.get(i).getCols();
 			rowsArray[i] = objetos.get(i).getRows();
 			
-			Mat tempaddr1=Utils.matFromJson(objetos.get(i).getDescriptores());
-            matsDescriptores.add(tempaddr1);
+			Mat tempMat=Utils.matFromJson(objetos.get(i).getDescriptores());
+            matsDescriptores.add(tempMat);
 			
-            MatOfKeyPoint tempaddr2=Utils.keypointsFromJson(objetos.get(i).getKeypoints());
-    		matsKeyPoints.add(tempaddr2);
+            MatOfKeyPoint tempMatKeyPoint=Utils.keypointsFromJson(objetos.get(i).getKeypoints());
+    		matsKeyPoints.add(tempMatKeyPoint);
 		}
 		
-        long[] tempobjadr1 = new long[matsDescriptores.size()]; 
-        long[] tempobjadr2 = new long[matsKeyPoints.size()]; 
+        long[] tempAddrDesc = new long[matsDescriptores.size()]; 
+        long[] tempAddrKeyP = new long[matsKeyPoints.size()]; 
         int[] cols = new int[matsKeyPoints.size()];
         int[] rows = new int[matsKeyPoints.size()];
         for (int i=0;i<matsDescriptores.size();i++)
         {
             Mat tempaddr1=matsDescriptores.get(i);
-            tempobjadr1[i]= tempaddr1.getNativeObjAddr();
+            tempAddrDesc[i]= tempaddr1.getNativeObjAddr();
             
             MatOfKeyPoint tempaddr2=matsKeyPoints.get(i);
-            tempobjadr2[i]= tempaddr2.getNativeObjAddr();
+            tempAddrKeyP[i]= tempaddr2.getNativeObjAddr();
             
             cols[i] = objetos.get(i).getCols();
             rows[i] = objetos.get(i).getRows();
         }
 
-		TrainDescriptors(tempobjadr1, tempobjadr2, cols, rows);
+        RellenarObjetos(tempAddrDesc, tempAddrKeyP, cols, rows);
 	}
 	
 	public void onReconocerClick(View v){
@@ -144,7 +175,7 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	public void onCancelarClick(View v){
 		if (!buscandoObjeto){
 			Intent myIntent = new Intent(ReconocimientoObjeto.this,
-					Reconocimiento.class);
+					MainActivity.class);
 			finish();
 			startActivity(myIntent);
 		}else{
@@ -166,11 +197,10 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 			// convert to bitmap:
 			Bitmap bm = Bitmap.createBitmap(aux.cols(), aux.rows(),Bitmap.Config.ARGB_8888);
 	        org.opencv.android.Utils.matToBitmap(aux, bm);
-			ImageView image = (ImageView) dialog.findViewById(R.id.imageObjeto);
+			image = (ImageView) dialog.findViewById(R.id.imageObjeto);
 			image.setImageBitmap(bm);			
 			
-			final EditText edtNombre = (EditText) dialog.findViewById(R.id.edtNombre);
-			
+			edtNombre = (EditText) dialog.findViewById(R.id.edtNombre);
 			Button btnAceptar = (Button) dialog.findViewById(R.id.btnAceptar);
 			// if button is clicked, close the custom dialog
 			btnAceptar.setOnClickListener(new View.OnClickListener() {
@@ -209,21 +239,45 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 			Toast.makeText(this, "Es necesario capturar de nuevo el objeto", Toast.LENGTH_SHORT).show();
 	}
 	
+	public class MyRunnable implements Runnable {
+		public int nObjetoActual;
+		public MyRunnable(int nObjetoActual){
+			this.nObjetoActual=nObjetoActual;
+		}
+		@Override
+		  public void run() {
+			nObjeto=FindObjects(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(),nObjetoActual);
+		  }
+		} 
+	
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		if (!buscandoObjeto || (buscandoObjeto && nObjeto == -1)){
 			mRgba = inputFrame.rgba();
 			mGray = inputFrame.gray();
 
 			if (buscandoObjeto) {
-					
-				FindObjects(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
-				if (nObjeto!=-1){
-					nombre=objetos.get(nObjeto).getNombre();
-					ReconocimientoObjeto.this.runOnUiThread(new Runnable() {
-					    public void run() {
-					    	Toast.makeText(getApplicationContext(), "Encontrado el objeto "+nombre, Toast.LENGTH_LONG).show();
-					    }
-					});
+				if (InicializaEscenario(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr())){
+					ExecutorService executor = Executors.newFixedThreadPool(objetos.size());
+			    	for (int i = 0; i < objetos.size() || nObjeto != -1; i++) {
+		    	      Runnable findObjectThread = new MyRunnable(i);
+		    	      executor.execute(findObjectThread);
+		    	    }
+			    	// This will make the executor accept no new threads
+			        // and finish all existing threads in the queue
+			        executor.shutdown();
+			        // Wait until all threads are finish
+			        while (!executor.isTerminated()){}
+			        LiberaEscenario();
+					if (nObjeto!=-1){
+						nombre=objetos.get(nObjeto).getNombre();
+						ReconocimientoObjeto.this.runOnUiThread(new Runnable() {
+						    public void run() {
+						    	ttobj.speak(nombre, TextToSpeech.QUEUE_FLUSH, null);
+						    	Toast.makeText(getApplicationContext(), "Encontrado el objeto "+nombre, Toast.LENGTH_SHORT).show();
+						    }
+						});
+						nObjeto=-1;
+					}
 				}
 			}
 		}
@@ -233,6 +287,11 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	@Override
 	public void onPause() {
 		datasource.close();
+		LiberaObjetos();
+		if(ttobj !=null){
+			ttobj.stop();
+			ttobj.shutdown();
+		}
 		super.onPause();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
@@ -240,10 +299,12 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	
 	@Override
 	public void onResume() {
-		datasource.open();
-		super.onResume();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
+		datasource.open();
+		objetos = datasource.getAllObjetos();
+		rellenar();
+		super.onResume();
 	}
 
 	@Override
@@ -253,8 +314,11 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 			mOpenCvCameraView.disableView();
 		colsArray = null;
 		rowsArray = null;
-		//matsDescriptores = null;
-		//matsKeyPoints = null;
+		matsDescriptores = null;
+		matsKeyPoints = null;
+		edtNombre = null;
+		image=null;
+		LiberaObjetos();
 	}
 
 	@Override
@@ -276,17 +340,22 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-			Log.i(TAG, "called MainActivity");
-			Intent myIntent = new Intent(ReconocimientoObjeto.this,
-					MainActivity.class);
-			finish();
-			startActivity(myIntent);
-			return true;
-
+			if (!buscandoObjeto){
+				Intent myIntent = new Intent(ReconocimientoObjeto.this,
+						MainActivity.class);
+				finish();
+				startActivity(myIntent);
+				return true;
+			}else{
+				buscandoObjeto=false;
+				nObjeto=-1;
+				return false;
+			}
 		}
 
 		return super.onKeyDown(keyCode, event);
 	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -297,23 +366,15 @@ public class ReconocimientoObjeto extends Activity implements CvCameraViewListen
 	
 	public native void FindFeatures(long matAddrGr, long matAddrRgba,
 			long matAddrDescriptores, long matAddrKeyPoints);
-	public native int FindObjects(long matAddrGray, long matAddrRgba);
 	
-	public native int TrainDescriptors(long[] descriptors, long[] keyPoints, int[] cols, int[] rows);
+	public native int FindObjects(long matAddrGray, long matAddrRgba, int i);
 	
-//	public native int FindObjects(long matAddrGray, long matAddrRgba, long[] matsKeyPoints,
-//			long[] matsDescriptores, int[] colsArray, int[] rowsArray, boolean esPrimeraVez);
+	public native boolean InicializaEscenario(long matAddrGray, long matAddrRgba);
 	
-//	public native void/*KeyPoint[]*/ FindFeatures(long matAddrGr, long matAddrRgba,
-//			long matAddrDescriptores, long matAddrKeyPoints);
-//
-//	public native boolean FindObject(long matAddrGr, long matAddrRgba,
-//			long matAddrKeyPoints/*KeyPoint[] matAddrKeypoints*/, long matAddrDescriptores, int cols, int rows);
-//	
-//	public native boolean FindFeatures2(long matAddrGr, long matAddrRgba,
-//			long matAddrDescriptores);
-//
-//	public native boolean FindObject2(long matAddrGr, long matAddrRgba,
-//			long matAddrDescriptores);
+	public native int LiberaEscenario();
+	
+	public native int RellenarObjetos(long[] descriptors, long[] keyPoints, int[] cols, int[] rows);
+	
+	public native int LiberaObjetos();
 
 }

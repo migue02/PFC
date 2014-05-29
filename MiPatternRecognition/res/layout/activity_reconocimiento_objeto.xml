@@ -9,40 +9,54 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ReconocimientoObjeto" >
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/layoutFrame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.75"
         android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/btnCancelar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onCancelarClick"
-            android:text="Cancelar" />
+        <org.opencv.android.JavaCameraView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/btnReconocer"
+        <LinearLayout
+            android:id="@+id/layoutBotones"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="bottom|center"
             android:layout_weight="1"
-            android:onClick="onReconocerClick"
-            android:text="Reconocer" />
+            android:background="@drawable/fondo"
+            android:gravity="bottom|center"
+            android:orientation="horizontal"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" >
 
-        <Button
-            android:id="@+id/btnCapturar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onCapturarClick"
-            android:text="Capturar" />
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/btnCapturar"
+                android:layout_width="wrap_content"
+  	            android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginRight="10dp"
+                android:clickable="true"
+                android:contentDescription="Capturar"
+                android:onClick="onCapturarClick"
+                android:src="@drawable/capturar" />
 
-    <org.opencv.android.JavaCameraView
-        android:id="@+id/surface_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="fill" />
+            <ImageView
+                android:id="@+id/btnReconocer"
+                android:layout_width="wrap_content"
+                android:layout_height="62dp"
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="10dp"
+                android:clickable="true"
+                android:contentDescription="Reconocer"
+                android:onClick="onReconocerClick"
+                android:src="@drawable/reconocer" />
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

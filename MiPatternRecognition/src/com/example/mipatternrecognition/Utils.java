@@ -34,6 +34,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class Utils {
+	
+
 
 	public static Date fechaRandom(){
 		Calendar cal = Calendar.getInstance();

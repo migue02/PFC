@@ -1,10 +1,14 @@
 package pfc.bd;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.example.mipatternrecognition.Utils;
 
+import pfc.obj.Ejercicio;
 import pfc.obj.SerieEjercicios;
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,11 +24,15 @@ public class SerieEjerciciosDataSource {
 	private MySQLiteHelper dbHelper;
 	private String[] allColumns = { MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_ID,
 			MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_NOMBRE,
-			MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS };
+			MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS,
+			MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION,
+			MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_FECHA_MODIFICACION};
+	private Context context;
 
 	public SerieEjerciciosDataSource(Context context) {
 		Log.w("Creando...", "Creando bd");
 		dbHelper = new MySQLiteHelper(context);
+		this.context = context;
 	}
 
 	public void open() throws SQLException {
@@ -44,20 +52,25 @@ public class SerieEjerciciosDataSource {
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS,
 				com.example.mipatternrecognition.Utils
 						.ArrayListToJson(serieEjercicios.getEjercicios()));
-
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION,serieEjercicios.getDuracion());
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_FECHA_MODIFICACION,
+				new SimpleDateFormat("yyyy-MM-dd").format(serieEjercicios.getFecha_modificacion_AsDate()));
 		serieEjercicios.setIdSerie((int) database.insert(MySQLiteHelper.TABLE_SERIE_EJERCICIOS,
 				null, values));
 		return serieEjercicios;
 	}
 	
 	public SerieEjercicios createSerieEjercicios(String nombre,
-			ArrayList<Integer> ejercicios) {
+			ArrayList<Integer> ejercicios, double duracion, Date fecha_modificacion) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS,
 				com.example.mipatternrecognition.Utils
 						.ArrayListToJson(ejercicios));
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION,duracion);
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_FECHA_MODIFICACION,
+				new SimpleDateFormat("yyyy-MM-dd").format(fecha_modificacion));
 
 		long insertId = database.insert(MySQLiteHelper.TABLE_SERIE_EJERCICIOS,
 				null, values); // Se inserta un ejercicio y se deuelve su id
@@ -83,6 +96,9 @@ public class SerieEjerciciosDataSource {
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS,
 				com.example.mipatternrecognition.Utils
 						.ArrayListToJson(serieEjercicios.getEjercicios()));
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION,serieEjercicios.getDuracion());
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_FECHA_MODIFICACION,
+				new SimpleDateFormat("yyyy-MM-dd").format(serieEjercicios.getFecha_modificacion_AsDate()));
 
 		return database.update(MySQLiteHelper.TABLE_SERIE_EJERCICIOS, values,
 				MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_ID + " = " + serieEjercicios.getIdSerie(), null) > 0;
@@ -90,16 +106,42 @@ public class SerieEjerciciosDataSource {
 	
 
 	public boolean modificaSerieEjercicios(int id, String nombre,
-			ArrayList<Integer> ejercicios) {
+			ArrayList<Integer> ejercicios, double duracion, Date fecha_modificacion) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_IDEJERCICIOS,
 				com.example.mipatternrecognition.Utils
 						.ArrayListToJson(ejercicios));
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION,duracion);
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_FECHA_MODIFICACION,
+				new SimpleDateFormat("yyyy-MM-dd").format(fecha_modificacion));
 
 		return database.update(MySQLiteHelper.TABLE_SERIE_EJERCICIOS, values,
 				MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_ID + " = " + id, null) > 0;
+	}
+	
+	public boolean actualizaDuracion(SerieEjercicios serie){
+		ContentValues values = new ContentValues();
+		
+		double duracionAnterior = serie.getDuracion();
+		EjercicioDataSource ejercicioDS = new EjercicioDataSource(context);
+
+		serie.setDuracion(0);
+		
+		for(int i=0;i<serie.getEjercicios().size(); i++)
+			serie.setDuracion(serie.getDuracion() + ejercicioDS.getDuracion(serie.getEjercicios().get(i)));
+		
+		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION, serie.getDuracion());
+		
+		int modificado = database.update(MySQLiteHelper.TABLE_SERIE_EJERCICIOS, values,
+				MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_ID + " = " + serie.getIdSerie(), null);
+		
+		ejercicioDS.close();
+		
+		if (modificado == 0)
+			serie.setDuracion(duracionAnterior);
+		return modificado > 0;
 	}
 
 	public boolean eliminarSerieEjercicios(int id) {
@@ -151,8 +193,16 @@ public class SerieEjerciciosDataSource {
 	}
 
 	private SerieEjercicios cursorToSerieEjercicios(Cursor cursor) {
-		return new SerieEjercicios(cursor.getInt(0), cursor.getString(1),
-				Utils.ArrayListFromJson(cursor.getString(2)));
+		SerieEjercicios serie = new SerieEjercicios(cursor.getInt(0), cursor.getString(1),
+				Utils.ArrayListFromJson(cursor.getString(2)),cursor.getDouble(3),new Date());
+		try {
+			serie.setFecha_modificacion(new SimpleDateFormat("yyyy-MM-dd").parse(cursor
+					.getString(3)));
+		} catch (ParseException e) {
+			Log.e("ERROR_FECHA", "Error al obtener la fecha");
+			e.printStackTrace();
+		}
+		return serie;
 	}
 
 }

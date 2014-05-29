@@ -42,10 +42,10 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = "Reconocimiento::MainActivity";
 	private ObjetoDataSource datasourceObjeto;
-	private EjercicioDataSource datasourceEjercicio;
-	private SerieEjerciciosDataSource datasourceSerieEjercicios;
-	private ResultadoDataSource datasourceResultado;
-	private AlumnoDataSource datasourceAlumno;
+	//private EjercicioDataSource datasourceEjercicio;
+	//private SerieEjerciciosDataSource datasourceSerieEjercicios;
+	//private ResultadoDataSource datasourceResultado;
+	//private AlumnoDataSource datasourceAlumno;
 	
 	// Buttons
 	private Button comenzarRec;
@@ -75,9 +75,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "called onCreate");
-		
-		
+		Log.i(TAG, "called onCreate");		
 
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -87,20 +85,21 @@ public class MainActivity extends Activity {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
 
+		// -------
+		// Objetos
+		// -------
 		datasourceObjeto = new ObjetoDataSource(this);
 		datasourceObjeto.open();
-		
-		
 		List<Objeto> lista_objectos = datasourceObjeto.getAllObjetos();
-
 		ArrayAdapter<Objeto> adapterObjetos = new ArrayAdapter<Objeto>(this,
 				android.R.layout.simple_list_item_1, lista_objectos);
-		
 		lv = (ListView)findViewById(R.id.listaObjetos);
 		lv.setAdapter(adapterObjetos);
 		
-		
-		datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
+		// ---------------
+		// SerieEjercicios
+		// ---------------
+		/*datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
 		datasourceSerieEjercicios.open();
 		
 		//datasourceSerieEjercicios.createSerieEjercicios("Pelotas", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
@@ -113,38 +112,46 @@ public class MainActivity extends Activity {
 				android.R.layout.simple_list_item_1, lista_series);
 		
 		lv = (ListView)findViewById(R.id.listaObjetos);
-		lv.setAdapter(adapterSeries);
-//		
-//		datasourceEjercicio = new EjercicioDataSource(this);
-//		datasourceEjercicio.open();
-//		
-//		//datasourceEjercicio.createEjercicio("Pelota y telefono", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
-//		//datasourceEjercicio.createEjercicio("Pelota y raqueta", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
-//		//datasourceEjercicio.createEjercicio("Pito y tipo", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
-//		
-//		List<Ejercicio> lista_ejercicios = datasourceEjercicio.getAllEjercicios();
-//		
-//		ArrayAdapter<Ejercicio> adapterEjercicios = new ArrayAdapter<Ejercicio>(this,
-//				android.R.layout.simple_list_item_1, lista_ejercicios);
-//		
-//		lv = (ListView)findViewById(R.id.listaEjercicios);
-//		lv.setAdapter(adapterEjercicios);
+		lv.setAdapter(adapterSeries);*/
 		
-		datasourceAlumno = new AlumnoDataSource(this);
+
+		// ---------
+		// Ejercicio
+		// ---------
+		/*datasourceEjercicio = new EjercicioDataSource(this);
+		datasourceEjercicio.open();
+		
+		//datasourceEjercicio.createEjercicio("Pelota y telefono", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
+		//datasourceEjercicio.createEjercicio("Pelota y raqueta", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
+		//datasourceEjercicio.createEjercicio("Pito y tipo", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
+		
+		List<Ejercicio> lista_ejercicios = datasourceEjercicio.getAllEjercicios();
+		
+		ArrayAdapter<Ejercicio> adapterEjercicios = new ArrayAdapter<Ejercicio>(this,
+				android.R.layout.simple_list_item_1, lista_ejercicios);
+		
+		lv = (ListView)findViewById(R.id.listaEjercicios);
+		lv.setAdapter(adapterEjercicios);*/
+		
+		
+		// ------
+		// Alumno
+		// ------
+		/*datasourceAlumno = new AlumnoDataSource(this);
 		datasourceAlumno.open();
 		
 		//Alumno a = datasourceAlumno.createAlumno(Utils.nombreRandom(),
 		//		Utils.apellidoRandom() + " " + Utils.apellidoRandom(), Utils.fechaRandom(),
-		//		Utils.sexoRandom(), "");
+		//		Utils.sexoRandom(), "");*/
 
-		datasourceResultado = new ResultadoDataSource(this);
+		// ---------
+		// Resultado
+		// ---------
+		/*datasourceResultado = new ResultadoDataSource(this);
 		datasourceResultado.open();
 		//datasourceResultado.createResultado(1,1,10,5,new Date(),10,0,0);
 		//datasourceResultado.createResultado(1,1,5,3,new Date(),10,0,0);
 		//datasourceResultado.createResultado(1,1,1,1,new Date(),10,0,0);
-				
-		comenzarRec = (Button) findViewById(R.id.btnComenzar);
-		btn1 = (Button) findViewById(R.id.button1);
 		
 		List<Resultado> lista_resultados = datasourceResultado.getAllResultados();
 		
@@ -154,27 +161,20 @@ public class MainActivity extends Activity {
 		lv = (ListView)findViewById(R.id.listaEjercicios);
 		lv.setAdapter(adapterResultados);
 		
-		/*List<Resultado> lista_ejercicios = datasourceResultado.getResultadosAlumno(datasourceAlumno.getAlumnos(1));
 		
-		ArrayAdapter<Resultado> adapterEjercicios = new ArrayAdapter<Resultado>(this,
+		List<Resultado> lista_ejercicios = datasourceResultado.getResultadosAlumno(datasourceAlumno.getAlumnos(1));
+		
+		ArrayAdapter<Resultado> adapterResultado = new ArrayAdapter<Resultado>(this,
 				android.R.layout.simple_list_item_1, lista_ejercicios);
 		
 		lv = (ListView)findViewById(R.id.listaAlumnos);
-		lv.setAdapter(adapterEjercicios);
-*/
-
-		/*
-		 * if (lista_objectos.size() > 0) { // make a mat and draw something Mat
-		 * m = Utils.matFromJson(lista_objectos.get(0).getKeypoints());
-		 * 
-		 * // convert to bitmap: Bitmap bm = Bitmap.createBitmap(m.cols(),
-		 * m.rows(), Bitmap.Config.ARGB_8888);
-		 * org.opencv.android.Utils.matToBitmap(m, bm);
-		 * 
-		 * // find the imageview and draw it! selectedImage.setImageBitmap(bm);
-		 * }
+		lv.setAdapter(adapterResultado);
 		 */
 
+
+		comenzarRec = (Button) findViewById(R.id.btnComenzar);
+		btn1 = (Button) findViewById(R.id.button1);
+		
 		/* Listener Captura Objeto Button */
 		comenzarRec.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -203,8 +203,8 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		datasourceObjeto.open();
 		//datasourceEjercicio.open();
-		datasourceSerieEjercicios.open();
-		datasourceResultado.open();
+		//datasourceSerieEjercicios.open();
+		//datasourceResultado.open();
 		super.onResume();
 	}
 
@@ -216,8 +216,8 @@ public class MainActivity extends Activity {
 	protected void onPause() {
 		datasourceObjeto.close();
 		//datasourceEjercicio.close();
-		datasourceSerieEjercicios.close();
-		datasourceResultado.close();
+		//datasourceSerieEjercicios.close();
+		//datasourceResultado.close();
 		super.onPause();
 	}
 

@@ -7,7 +7,7 @@ import pfc.obj.TiposPropios.Sexo;
 
 public class Alumno {
 	
-	private Integer idAlumno;
+	private int idAlumno;
 	private String nombre;
 	private String apellidos;
 	private Date fecha_nac;
@@ -23,11 +23,11 @@ public class Alumno {
 		sexo = Sexo.NoDef;
 	}
 	
-	public Integer getIdAlumno() {
+	public int getIdAlumno() {
 		return idAlumno;
 	}
 	
-	public void setIdAlumno(Integer idAlumno) {
+	public void setIdAlumno(int idAlumno) {
 		this.idAlumno = idAlumno;
 	}
 

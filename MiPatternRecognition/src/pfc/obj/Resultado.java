@@ -9,7 +9,7 @@ public class Resultado {
 	private int idAlumno;
 	private int idEjercicio;
 	private Date fechaRealizacion;
-	private int duracion;
+	private double duracion;
 	private int numeroObjetosReconocer;
 	private int aciertos;
 	private int fallos;
@@ -28,7 +28,7 @@ public class Resultado {
 	}
 	
 	public Resultado(int idResultado, int idAlumno, int idEjercicio,
-			Date fechaRealizacion, int duracion, int numeroObjetosReconocer,
+			Date fechaRealizacion, double duracion, int numeroObjetosReconocer,
 			int aciertos, int fallos, double puntuacion) {
 		this.idResultado = idResultado;
 		this.idAlumno = idAlumno;
@@ -64,10 +64,10 @@ public class Resultado {
 	public void setFechaRealizacion(Date fechaRealizacion) {
 		this.fechaRealizacion = fechaRealizacion;
 	}
-	public int getDuracion() {
+	public double getDuracion() {
 		return duracion;
 	}
-	public void setDuracion(int duracion) {
+	public void setDuracion(double duracion) {
 		this.duracion = duracion;
 	}
 	public int getNumeroObjetosReconocer() {
