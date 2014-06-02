@@ -45,6 +45,13 @@ public class SerieEjerciciosDataSource {
 		dbHelper.close();
 	}
 
+	public void dropTableSerieEjercicios() {
+		Log.w("Deleting...", "Borrando tabla serieEjercicios");
+		database.execSQL(dbHelper.getSqlDropSerieEjercicios());
+		database.execSQL(dbHelper.getSqlCreateSerieEjercicios());
+	}
+
+	
 	public SerieEjercicios createSerieEjercicios(SerieEjercicios serieEjercicios) {
 
 		ContentValues values = new ContentValues();
@@ -126,6 +133,9 @@ public class SerieEjerciciosDataSource {
 		
 		double duracionAnterior = serie.getDuracion();
 		EjercicioDataSource ejercicioDS = new EjercicioDataSource(context);
+		ejercicioDS.open();
+		
+		double aux = ejercicioDS.getDuracion(1);
 
 		serie.setDuracion(0);
 		
@@ -134,14 +144,13 @@ public class SerieEjerciciosDataSource {
 		
 		values.put(MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_DURACION, serie.getDuracion());
 		
-		int modificado = database.update(MySQLiteHelper.TABLE_SERIE_EJERCICIOS, values,
-				MySQLiteHelper.COLUMN_SERIE_EJERCICIOS_ID + " = " + serie.getIdSerie(), null);
+		boolean modificado = modificaSerieEjercicios(serie);
 		
 		ejercicioDS.close();
 		
-		if (modificado == 0)
+		if (!modificado)
 			serie.setDuracion(duracionAnterior);
-		return modificado > 0;
+		return modificado;
 	}
 
 	public boolean eliminarSerieEjercicios(int id) {
@@ -154,11 +163,6 @@ public class SerieEjerciciosDataSource {
 				null) > 0;
 	}
 	
-	public void dropTableSerieEjericios() {
-		database.execSQL(dbHelper.getSqlDropSerieEjercicios());
-		database.execSQL(dbHelper.getSqlCreateObjeto());
-	}
-
 	public List<SerieEjercicios> getAllSeriesEjercicios() {
 		Log.w("Obteniendo...", "Obteniendo todas las series de ejercicios...");
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_SERIE_EJERCICIOS,

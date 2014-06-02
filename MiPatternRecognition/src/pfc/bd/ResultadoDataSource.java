@@ -46,6 +46,12 @@ public class ResultadoDataSource {
 		dbHelper.close();
 	}
 	
+	public void dropTableResultado() {
+		Log.w("Deleting...", "Borrando tabla resultado");
+		database.execSQL(dbHelper.getSqlDropResultado());
+		database.execSQL(dbHelper.getSqlCreateResultado());
+	}
+	
 	public Resultado createResultado(Resultado resultado) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_RESULTADO_ID_ALUMNO, resultado.getIdAlumno());
@@ -128,11 +134,6 @@ public class ResultadoDataSource {
 
 	public boolean borraTodosResultados() {
 		return database.delete(MySQLiteHelper.TABLE_RESULTADO, null, null) > 0;
-	}
-	
-	public void dropTableResultado() {
-		database.execSQL(dbHelper.getSqlDropResultado());
-		database.execSQL(dbHelper.getSqlCreateResultado());
 	}
 
 	public List<Resultado> getAllResultados() {

@@ -41,6 +41,12 @@ public class AlumnoDataSource {
 	public void close() {
 		dbHelper.close();
 	}
+	
+	public void dropTableAlumno() {
+		Log.w("Deleting...", "Borrando tabla alumno");
+		database.execSQL(dbHelper.getSqlDropAlumno());
+		database.execSQL(dbHelper.getSqlCreateAlumno());
+	}
 
 	public Alumno createAlumno(Alumno alumno) {
 		ContentValues values = new ContentValues();

@@ -20,6 +20,7 @@ public class EjercicioDataSource {
 	private String[] allColumns = { MySQLiteHelper.COLUMN_EJERCICIO_ID,
 			MySQLiteHelper.COLUMN_EJERCICIO_NOMBRE,
 			MySQLiteHelper.COLUMN_EJERCICIO_OBJETOS,
+			MySQLiteHelper.COLUMN_EJERCICIO_DESCRIPCION,
 			MySQLiteHelper.COLUMN_EJERCICIO_DURACION};
 
 	public EjercicioDataSource(Context context) {
@@ -36,24 +37,32 @@ public class EjercicioDataSource {
 	public void close() {
 		dbHelper.close();
 	}
+	
+	public void dropTableEjercicios() {
+		Log.w("Deleting...", "Borrando tabla ejercicio");
+		database.execSQL(dbHelper.getSqlDropEjercicio());
+		database.execSQL(dbHelper.getSqlCreateEjercicio());
+	}
 
 	public Ejercicio createEjercicio(Ejercicio ejercicio) {
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_NOMBRE, ejercicio.getNombre());
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_OBJETOS,
 				com.example.mipatternrecognition.Utils.ArrayListToJson(ejercicio.getObjetos()));
+		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DESCRIPCION,ejercicio.getDescripcion());
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DURACION,ejercicio.getDuracion());
 		
 		ejercicio.setIdEjercicio((int) database.insert(MySQLiteHelper.TABLE_EJERCICIO, null, values));
 		return ejercicio;
 	}
 	
-	public Ejercicio createEjercicio(String nombre, ArrayList<Integer> objetos, double duracion) {
+	public Ejercicio createEjercicio(String nombre, ArrayList<Integer> objetos, String descripcion, double duracion) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_OBJETOS,
 				com.example.mipatternrecognition.Utils.ArrayListToJson(objetos));
+		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DESCRIPCION, descripcion);
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DURACION, duracion);
 		
 		long insertId = database.insert(MySQLiteHelper.TABLE_EJERCICIO, null,
@@ -75,6 +84,7 @@ public class EjercicioDataSource {
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_NOMBRE, ejercicio.getNombre());
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_OBJETOS,
 				com.example.mipatternrecognition.Utils.ArrayListToJson(ejercicio.getObjetos()));
+		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DESCRIPCION,ejercicio.getDescripcion());
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DURACION,ejercicio.getDuracion());
 
 		return database.update(MySQLiteHelper.TABLE_EJERCICIO, values,
@@ -82,12 +92,13 @@ public class EjercicioDataSource {
 	}
 
 	public boolean modificaEjercicio(int id, String nombre,
-			ArrayList<Integer> objetos, double duracion) {
+			ArrayList<Integer> objetos, String descripcion, double duracion) {
 
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_NOMBRE, nombre);
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_OBJETOS,
 				com.example.mipatternrecognition.Utils.ArrayListToJson(objetos));
+		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DESCRIPCION,descripcion);
 		values.put(MySQLiteHelper.COLUMN_EJERCICIO_DURACION,duracion);
 
 		return database.update(MySQLiteHelper.TABLE_EJERCICIO, values,
@@ -143,6 +154,7 @@ public class EjercicioDataSource {
 				new String [] {MySQLiteHelper.COLUMN_EJERCICIO_DURACION}, 
 				MySQLiteHelper.COLUMN_EJERCICIO_ID + " = " + id, null, null, null, null);
 		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
 			return cursor.getDouble(0);
 		}
 		return 0;
@@ -150,7 +162,7 @@ public class EjercicioDataSource {
 
 	private Ejercicio cursorToEjercicio(Cursor cursor) {
 		return new Ejercicio(cursor.getInt(0), cursor.getString(1),
-				Utils.ArrayListFromJson(cursor.getString(2)),cursor.getDouble(3));
+				Utils.ArrayListFromJson(cursor.getString(2)),cursor.getString(3), cursor.getDouble(4));
 	}
 
 }

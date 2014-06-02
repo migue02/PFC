@@ -7,6 +7,7 @@ public class Ejercicio {
 	private int idEjercicio;
 	private String nombre;
 	private ArrayList<Integer> objetos;
+	private String descripcion;
 	private double duracion;
 	
 	public Ejercicio() {
@@ -14,20 +15,23 @@ public class Ejercicio {
 		this.nombre="";
 		this.objetos=new ArrayList<Integer>();
 		this.duracion=0.0;
+		this.descripcion = "";
 	}
 
-	public Ejercicio(int idEjercicio, String nombre, ArrayList<Integer> objetos, double duracion) {
+	public Ejercicio(int idEjercicio, String nombre, ArrayList<Integer> objetos, String descripcion, double duracion) {
 		this.idEjercicio = idEjercicio;
 		this.nombre = nombre;
 		this.objetos = new ArrayList<Integer>(objetos);
-		this.duracion=0.0;
+		this.descripcion = descripcion;
+		this.duracion=duracion;
 	}
 	
-	public Ejercicio(int idEjercicio, String nombre, String objetos, double duracion) {
+	public Ejercicio(int idEjercicio, String nombre, String objetos, String descripcion, double duracion) {
 		try {
 			this.idEjercicio = idEjercicio;
 			this.nombre = nombre;
 			this.objetos = com.example.mipatternrecognition.Utils.ArrayListFromJson(objetos);	
+			this.descripcion = descripcion;
 			this.duracion=duracion;
 		}catch (Exception e){
 			new Ejercicio();
@@ -37,7 +41,7 @@ public class Ejercicio {
 	@Override
 	public String toString() {
 		return "Ejercicio [idEjercicio=" + idEjercicio + ", nombre=" + nombre
-				+ ", objetos=" + objetos + duracion + "]";
+				+ ", objetos=" + objetos + descripcion + duracion + "]";
 	}
 
 	public Integer getIdEjercicio() {
@@ -63,6 +67,14 @@ public class Ejercicio {
 	public void setObjetos(ArrayList<Integer> objetos) {
 		this.objetos = objetos;
 	}	
+	
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 	
 	public double getDuracion() {
 		return duracion;

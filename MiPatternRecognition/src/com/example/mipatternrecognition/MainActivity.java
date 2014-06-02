@@ -42,10 +42,11 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = "Reconocimiento::MainActivity";
 	private ObjetoDataSource datasourceObjeto;
-	//private EjercicioDataSource datasourceEjercicio;
-	//private SerieEjerciciosDataSource datasourceSerieEjercicios;
+	private EjercicioDataSource datasourceEjercicio;
+	private SerieEjerciciosDataSource datasourceSerieEjercicios;
 	//private ResultadoDataSource datasourceResultado;
 	//private AlumnoDataSource datasourceAlumno;
+	private SerieEjercicios serie;
 	
 	// Buttons
 	private Button comenzarRec;
@@ -96,34 +97,19 @@ public class MainActivity extends Activity {
 		lv = (ListView)findViewById(R.id.listaObjetos);
 		lv.setAdapter(adapterObjetos);
 		
-		// ---------------
-		// SerieEjercicios
-		// ---------------
-		/*datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
-		datasourceSerieEjercicios.open();
-		
-		//datasourceSerieEjercicios.createSerieEjercicios("Pelotas", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
-		//datasourceSerieEjercicios.createSerieEjercicios("Bolígrafos", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
-		//datasourceSerieEjercicios.createSerieEjercicios("Pitos", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
-		
-		List<SerieEjercicios> lista_series = datasourceSerieEjercicios.getAllSeriesEjercicios();
-		
-		ArrayAdapter<SerieEjercicios> adapterSeries = new ArrayAdapter<SerieEjercicios>(this,
-				android.R.layout.simple_list_item_1, lista_series);
-		
-		lv = (ListView)findViewById(R.id.listaObjetos);
-		lv.setAdapter(adapterSeries);*/
-		
-
 		// ---------
 		// Ejercicio
 		// ---------
-		/*datasourceEjercicio = new EjercicioDataSource(this);
+		datasourceEjercicio = new EjercicioDataSource(this);
 		datasourceEjercicio.open();
+		//datasourceEjercicio.dropTableEjercicios();
 		
-		//datasourceEjercicio.createEjercicio("Pelota y telefono", new ArrayList<Integer>(){{add(1);add(2);add(3);}});
-		//datasourceEjercicio.createEjercicio("Pelota y raqueta", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
-		//datasourceEjercicio.createEjercicio("Pito y tipo", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
+		//final Ejercicio id1 = datasourceEjercicio.createEjercicio("Pelota y telefono", 
+		//		new ArrayList<Integer>(){{add(1);add(2);add(3);}},"Pelota y telefono namas",3.5);
+		//final Ejercicio id2 = datasourceEjercicio.createEjercicio("Pelota y raqueta", 
+		//		new ArrayList<Integer>(){{add(2);add(3);add(4);}},"Pelota y raqueta namas",5);
+		//final Ejercicio id3 = datasourceEjercicio.createEjercicio("Pito y tipo", 
+		//		new ArrayList<Integer>(){{add(0);add(1);add(2);}},"Pito y tipo namas",1.5);
 		
 		List<Ejercicio> lista_ejercicios = datasourceEjercicio.getAllEjercicios();
 		
@@ -131,7 +117,29 @@ public class MainActivity extends Activity {
 				android.R.layout.simple_list_item_1, lista_ejercicios);
 		
 		lv = (ListView)findViewById(R.id.listaEjercicios);
-		lv.setAdapter(adapterEjercicios);*/
+		lv.setAdapter(adapterEjercicios);
+		
+		// ---------------
+		// SerieEjercicios
+		// ---------------
+		datasourceSerieEjercicios = new SerieEjerciciosDataSource(this);
+		datasourceSerieEjercicios.open();
+		//datasourceSerieEjercicios.dropTableSerieEjercicios();
+		
+		//serie = datasourceSerieEjercicios.createSerieEjercicios("Pelotas", 
+		//		new ArrayList<Integer>(){{add(id1.getIdEjercicio());add(id2.getIdEjercicio());add(id3.getIdEjercicio());}}, 
+		//		0, new Date());
+		//datasourceSerieEjercicios.createSerieEjercicios("Bolígrafos", new ArrayList<Integer>(){{add(2);add(3);add(4);}});
+		//datasourceSerieEjercicios.createSerieEjercicios("Pitos", new ArrayList<Integer>(){{add(0);add(1);add(2);}});
+		
+		
+		List<SerieEjercicios> lista_series = datasourceSerieEjercicios.getAllSeriesEjercicios();
+		serie=lista_series.get(0);
+		ArrayAdapter<SerieEjercicios> adapterSeries = new ArrayAdapter<SerieEjercicios>(this,
+				android.R.layout.simple_list_item_1, lista_series);
+		
+		lv = (ListView)findViewById(R.id.listaAlumnos);
+		lv.setAdapter(adapterSeries);
 		
 		
 		// ------
@@ -189,11 +197,14 @@ public class MainActivity extends Activity {
 
 		btn1.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				datasourceObjeto.eliminaTodosObjetos();
-				Intent myIntent = new Intent(MainActivity.this,
+				if (datasourceSerieEjercicios.actualizaDuracion(serie))
+				toast(serie);
+				//datasourceEjercicio.getDuracion(1);
+				//datasourceObjeto.eliminaTodosObjetos();
+				/*Intent myIntent = new Intent(MainActivity.this,
 						Alumnos.class);
 				finish();
-				startActivity(myIntent);
+				startActivity(myIntent);*/
 			}
 		});
 
@@ -210,6 +221,10 @@ public class MainActivity extends Activity {
 
 	public void toast(Objeto obj) {
 		Toast.makeText(this, "Id =" + obj.getId(), Toast.LENGTH_SHORT).show();
+	}
+	
+	public void toast(SerieEjercicios serie) {
+		Toast.makeText(this, "Duracion" + serie.getDuracion(), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

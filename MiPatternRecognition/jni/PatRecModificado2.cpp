@@ -52,7 +52,7 @@ void freeObjects(){
 		vectorDescriptores.at(i).release();
 		vectorKeyPoints.at(i).clear();
 	}
-	vectorDescriptores;
+	vectorDescriptores.clear();
 	vectorKeyPoints.clear();
 	listaCols.clear();
 	listaRows.clear();

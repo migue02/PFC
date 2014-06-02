@@ -32,7 +32,7 @@ public class SerieEjercicios {
 		this.idSerie = idSerie;
 		this.nombre = nombre;
 		this.ejercicios = new ArrayList<Integer>(ejercicios);
-		this.duracion=0.0;
+		this.duracion=duracion;
 		this.fecha_modificacion= fecha_modificacion; 
 	}
 	
@@ -50,8 +50,8 @@ public class SerieEjercicios {
 
 	@Override
 	public String toString() {
-		return "Serie [idSerie=" + idSerie + ", nombre=" + nombre
-				+ ", ejercicios=" + ejercicios + duracion + getFecha_modificacion_AsStrign() + "]";
+		return "Serie [id =" + idSerie + ", " + nombre
+				+ ", ejercicios=" + ejercicios + "Duracion = " + duracion  + ", " + getFecha_modificacion_AsStrign() + "]";
 	}
 
 	public int getIdSerie() {

@@ -12,27 +12,24 @@
     <FrameLayout
         android:id="@+id/layoutFrame"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.75"
+        android:layout_height="match_parent"
         android:orientation="horizontal" >
 
         <org.opencv.android.JavaCameraView
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"/>
 
         <LinearLayout
             android:id="@+id/layoutBotones"
             android:layout_width="wrap_content"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
-            android:layout_weight="1"
             android:background="@drawable/fondo"
             android:gravity="bottom|center"
-            android:orientation="horizontal"
+            android:orientation="horizontal" 
             android:paddingLeft="20dp"
-            android:paddingRight="20dp" >
+            android:paddingRight="20dp">
 
             <ImageView
                 android:id="@+id/btnCapturar"
@@ -48,13 +45,37 @@
             <ImageView
                 android:id="@+id/btnReconocer"
                 android:layout_width="wrap_content"
-                android:layout_height="62dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginLeft="10dp"
                 android:clickable="true"
                 android:contentDescription="Reconocer"
                 android:onClick="onReconocerClick"
                 android:src="@drawable/reconocer" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="@drawable/fondo_tools"
+            android:gravity="right"
+            android:orientation="vertical"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="5dp" >
+
+            <ImageView
+                android:id="@+id/ImageView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:contentDescription="Capturar"
+                android:onClick="onCapturarClick"
+                android:src="@drawable/settings" />
+
         </LinearLayout>
 
     </FrameLayout>

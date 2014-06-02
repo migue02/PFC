@@ -59,6 +59,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String COLUMN_EJERCICIO_ID = "_id";
 	public static final String COLUMN_EJERCICIO_NOMBRE = "nombre";
 	public static final String COLUMN_EJERCICIO_OBJETOS = "objetos";
+	public static final String COLUMN_EJERCICIO_DESCRIPCION = "descripcion";
 	public static final String COLUMN_EJERCICIO_DURACION = "duracion";
 	// public static final String COLUMN_EJERCICIO_SONIDO_ACIERTO = "acierto";
 	// public static final String COLUMN_EJERCICIO_SONIDO_FALLO = "fallo";
@@ -67,6 +68,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			+ COLUMN_EJERCICIO_ID + " integer primary key autoincrement, " 
 			+ COLUMN_EJERCICIO_NOMBRE + " varchar, " 
 			+ COLUMN_EJERCICIO_OBJETOS + " varchar, "
+			+ COLUMN_EJERCICIO_DESCRIPCION + " varchar, "
 			+ COLUMN_EJERCICIO_DURACION + " real)";
 	
 	// -------------------------
